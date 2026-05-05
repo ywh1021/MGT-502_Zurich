@@ -17,9 +17,9 @@ INTERACTIONS_CSV = ROOT / "interactions_train.csv"
 ITEMS_CSV = ROOT / "items.csv"
 CLASSIFIED_CSV = ROOT / "books_classified.csv"
 
-# inference_old.py lives at repo root; make it importable.
+# inference.py lives at repo root; make it importable.
 sys.path.insert(0, str(ROOT))
-from inference_old import (  # noqa: E402
+from inference import (  # noqa: E402
     FittedModel,
     build_interaction_matrix,
     fit,
