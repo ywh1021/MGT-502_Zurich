@@ -55,8 +55,21 @@ h1 {
   transition: border-color 0.12s, transform 0.12s;
 }
 .tile:hover { border-color: #4f7cff; transform: translateY(-1px); }
+.tile.selected { border-color: #4f7cff; background: #eef3ff; }
+.tile.selected:hover { transform: none; }
 .tile .tile-label { font-weight: 600; font-size: 15px; }
 .tile .tile-count { color: #888; font-size: 13px; margin-top: 4px; }
+
+.sub-group { margin-bottom: 32px; }
+.sub-group-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e3e6ea;
+}
+.sub-group-axis { font-weight: 400; color: #888; }
 
 .search {
   width: 100%;

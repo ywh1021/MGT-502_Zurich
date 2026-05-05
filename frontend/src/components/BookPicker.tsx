@@ -2,14 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { getBooks, postRecommend } from "../api";
 import type { Book, Recommendation } from "../types";
 
-interface Props {
-  bookType: string;
+interface Selection {
+  book_type: string;
   subcategory?: string;
+}
+
+interface Props {
+  selections: Selection[];
   onRecommendations: (recs: Recommendation[]) => void;
   onBack: () => void;
 }
 
-export function BookPicker({ bookType, subcategory, onRecommendations, onBack }: Props) {
+export function BookPicker({ selections, onRecommendations, onBack }: Props) {
   const [books, setBooks] = useState<Book[] | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
@@ -17,10 +21,19 @@ export function BookPicker({ bookType, subcategory, onRecommendations, onBack }:
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    getBooks(bookType, subcategory, 50)
-      .then((r) => setBooks(r.books))
+    Promise.all(selections.map((s) => getBooks(s.book_type, s.subcategory, 50)))
+      .then((results) => {
+        const byId = new Map<number, Book>();
+        for (const r of results) {
+          for (const b of r.books) {
+            if (!byId.has(b.id)) byId.set(b.id, b);
+          }
+        }
+        const merged = [...byId.values()].sort((a, b) => b.popularity - a.popularity);
+        setBooks(merged);
+      })
       .catch((e) => setError(String(e)));
-  }, [bookType, subcategory]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = useMemo(() => {
     if (!books) return [];
@@ -60,7 +73,7 @@ export function BookPicker({ bookType, subcategory, onRecommendations, onBack }:
   return (
     <>
       <p className="subtitle">
-        Tick the books you've read. We'll recommend similar ones.
+        Tick the books you've read — we'll use these to recommend similar ones.
       </p>
       <input
         className="search"
