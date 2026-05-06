@@ -1,4 +1,4 @@
-# Book Recommendation System 📚
+# Book Recommendation System
 
 [![Leaderboard Score](https://img.shields.io/badge/Leaderboard-0.1452%2B-green)](#performance-summary)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
