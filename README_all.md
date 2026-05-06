@@ -14,6 +14,9 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 
 ### Interaction Data
 *   **Sparsity Analysis:** Visualizing the user-item interaction matrix.
+    
+    <img src="./images/interaction.jpeg" width="500">
+    
 *   **User Activity:** Distribution of book rentals per user.
     <img src="./images/user_activity_dist_3.jpeg" width="500">
 
@@ -37,18 +40,30 @@ To improve recommendation quality, we enriched the original metadata using exter
 
 ## 4. Model Architectures & Experiments
 
-### Hyper-parameter Optimization
-We used [Method, e.g., Optuna / GridSearch] to tune:
-*   K-neighbors for CF models.
-*   Learning rates and depth for Boosting models.
-*   Embedding dimensions for Matrix Factorization.
-
 ### Performance Summary (Validation Results)
 | Technique | Precision@10 | Recall@10 |
 | :--- | :--- | :--- |
 | **User-User CF** | 0.XXXX | 0.XXXX |
 | **Item-Item CF** | 0.XXXX | 0.XXXX |
-| **XGBoost / Hybrid (Best)** | **0.XXXX** | **0.XXXX** |
+| **User & Item Hybrid** | **0.XXXX** | **0.XXXX** |
+| **U + I + Content** | **0.XXXX** | **0.XXXX** |
+| **U + I + Content + Pop + Time decay** | **0.XXXX** | **0.XXXX** |
+| **XGBoost** | **0.XXXX** | **0.XXXX** |
+
+### Model Description
+*   **User-User:** 
+*   **Item-Item:** 
+*   **User & Item Hybrid:** 
+*   **U + I + Content:**
+*   **U + I + Content + Pop + Time decay:**
+*   **XGBoost:**
+
+
+### Hyper-parameter Optimization
+We used [Method, e.g., Optuna / GridSearch] to tune:
+*   K-neighbors for CF models.
+*   Learning rates and depth for Boosting models.
+*   Embedding dimensions for Matrix Factorization.
 
 > **Note:** The above results are calculated using Cross-Validation on the training set to ensure label integrity.
 
