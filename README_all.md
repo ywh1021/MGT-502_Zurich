@@ -15,6 +15,7 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 ### Interaction Data
 *   **Sparsity Analysis:** Visualizing the user-item interaction matrix.
 *   **User Activity:** Distribution of book rentals per user.
+*   ![Books rentals per user](./images/book_distribution.png)
 *   **Item Popularity:** Identifying the "Long Tail" in book rentals.
 
 ### Items Metadata
@@ -24,7 +25,7 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 
 ---
 
-## 3. Data Augmentation 🚀
+## 3. Data Augmentation
 To improve recommendation quality, we enriched the original metadata using external sources:
 *   **Google Books API:** Fetched missing descriptions and categories.
 *   **ISBNDB:** (Optional) Supplemented publisher and language data.
@@ -55,12 +56,12 @@ We used [Method, e.g., Optuna / GridSearch] to tune:
 The **[Insert Best Model Name, e.g., XGBoost Hybrid]** outperformed others by integrating collaborative signals with item metadata. 
 
 ### Good vs. Bad Predictions
-#### ✅ "Good" Predictions
+#### Good Predictions
 *   **User A History:** [List 1-2 genres/books]
 *   **Recommendation:** [Book X]
 *   **Why it works:** Align with the user's preference for [Genre].
 
-#### ❌ "Bad" Predictions
+#### Bad Predictions
 *   **User B History:** [List 1-2 genres/books]
 *   **Recommendation:** [Book Y]
 *   **Why it failed:** Likely due to [Reason, e.g., Popularity bias or niche interest].
