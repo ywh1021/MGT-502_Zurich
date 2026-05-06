@@ -15,7 +15,7 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 ### Interaction Data
 *   **Sparsity Analysis:** Visualizing the user-item interaction matrix.
 *   **User Activity:** Distribution of book rentals per user.
-*   ![Books rentals per user](./images/WhatsApp Image 2026-05-06 at 09.31.52.jpeg)
+*   ![Books rentals per user](./images/user_plot.jpeg)
 *   **Item Popularity:** Identifying the "Long Tail" in book rentals.
 
 ### Items Metadata
