@@ -13,7 +13,7 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 ## 2. Exploratory Data Analysis (EDA)
 
 ### Interaction Data
-*   **Sparsity Analysis:** Visualizing the user-item interaction matrix.
+*   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
     
     <img src="./images/interaction.jpeg" width="500">
     
