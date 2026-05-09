@@ -43,8 +43,8 @@ To improve recommendation quality, we enriched the original metadata using exter
 ### Performance Summary (Validation Results)
 | Technique | Precision@10 | Recall@10 |
 | :--- | :--- | :--- |
-| **User-User CF** | 0.XXXX | 0.XXXX |
-| **Item-Item CF** | 0.XXXX | 0.XXXX |
+| **User-User CF** | 0.0477 | 0.2616 |
+| **Item-Item CF** | 0.0477 | 0.2359 |
 | **User & Item Hybrid** | **0.XXXX** | **0.XXXX** |
 | **U + I + Content** | **0.XXXX** | **0.XXXX** |
 | **U + I + Content + Pop + Time decay** | **0.XXXX** | **0.XXXX** |
