@@ -12,7 +12,7 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 
 ## 2. Exploratory Data Analysis (EDA)
 
-We use two main dataset to build out recommendation model. The first one is the interaction dataset with 87047 interactions across 7838 users and 15291 books with timestamps for each interactions. The second dataset is a list of 15291 books with title, author, publisher, subjects, and ISBN provided of each books. Before we started to construct our interaction model, it would be useful to implement exploratory data analysis and have a better understanding of our dataset.
+We use two main datasets to build our recommendation model. The first one is the interaction dataset with 87047 interactions across 7838 users and 15291 books with timestamps for each interaction. The second dataset is a list of 15291 books with title, author, publisher, subjects, and ISBN provided for each book. Before we start constructing our interaction model, it would be useful to conduct exploratory data analysis to understand our datasets better.
 
 ### Interaction Data
 *   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
@@ -27,10 +27,16 @@ We use two main dataset to build out recommendation model. The first one is the 
 
     <img src="./images/user_plot.jpeg" width="500">
 
+*   **Reader Loyalty:** evaluate author preference, we calculated the 'average books read per author' for 4,641 active users (those with ≥ 5 read books). The resulting chart displays a heavily right-skewed distribution. The dominant peak at 1.0 indicates that most users are "Pure Explorers," typically consuming only one book per author. Conversely, the extended right tail reveals a dedicated segment of "Loyal Fans," with 20.2% of active users reading multiple works (≥ 2) by the same author. This behavioral divide suggests a dual recommendation strategy: leveraging collaborative filtering to capture the diverse, cross-author tastes of the majority, while integrating author-based content features to satisfy the specific preferences of niche loyalists.
+  
+    <img src="./images/reader_loyalty.jpeg" width="500"> 
+
 ### Items Metadata
+
+*   **Missing Values:** Assessment of metadata completeness (ISBN, Descriptions, etc.). Across the 15291 books, there are some
+*   
 *   **Genre & Author Distribution:** Analysis of the most frequent categories.
 *   **Year of Publication:** Historical trends of the library's collection.
-*   **Missing Values:** Assessment of metadata completeness (ISBN, Descriptions, etc.).
 
 ---
 
