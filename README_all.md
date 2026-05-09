@@ -12,15 +12,19 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 
 ## 2. Exploratory Data Analysis (EDA)
 
+We use two main dataset to build out recommendation model. The first one is the interaction dataset with 87047 interactions across 7838 users and 15291 books with timestamps for each interactions. The second dataset is a list of 15291 books with title, author, publisher, subjects, and ISBN provided of each books. Before we started to construct our interaction model, it would be useful to implement exploratory data analysis and have a better understanding of our dataset.
+
 ### Interaction Data
 *   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
     
     <img src="./images/interaction.jpeg" width="500">
     
 *   **User Activity:** From the bar chart demonstrated below, the majority of the users read fewer than 10 books. Although we still have some readers who interact with over 300 books, 69.06% users interact with less and 10 books, and 40.79% of the readers interact with even fewer than 5 books. Due to a lack of interaction data for many users, standard user-based collaborative filtering will struggle to find similar peers for these inactive users. To address this "cold-start" issue, our model will likely need to rely on hybrid approaches, incorporating book content features or baseline popularity metrics for early recommendations.
+
     <img src="./images/user_activity_4.jpeg" width="500">
 
 *   **Item Popularity:** This chart reveals a long tail distribution in book interactions. The top 5% popular book account for 23.70% all interactions, while over half (52.23%) have fewer than 5 interactions. While recommend popular books can be useful, we need to be cautious of popularity bias, where the model defaults to suggesting only top hits for everyone. Implementing strategies like item-based collaborative filtering or content-based matching can possibly help us discover relevant hidden gems from the tail.
+
     <img src="./images/user_plot.jpeg" width="500">
 
 ### Items Metadata
