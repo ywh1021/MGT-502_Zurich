@@ -40,13 +40,6 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
   
     <img src="./images/reader_loyalty.jpeg" width="500"> 
 
-### Items Metadata
-
-*   **Missing Values:** Assessment of metadata completeness (ISBN, Descriptions, etc.). Across the 15291 books, there are some
-*   
-*   **Genre & Author Distribution:** Analysis of the most frequent categories.
-*   **Year of Publication:** Historical trends of the library's collection.
-
 ---
 
 ## 3. Data Augmentation
