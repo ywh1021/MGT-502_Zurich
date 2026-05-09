@@ -12,7 +12,14 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 
 ## 2. Exploratory Data Analysis (EDA)
 
-We use two main datasets to build our recommendation model. The first one is the interaction dataset with 87047 interactions across 7838 users and 15291 books with timestamps for each interaction. The second dataset is a list of 15291 books with title, author, publisher, subjects, and ISBN provided for each book. Before we start constructing our interaction model, it would be useful to conduct exploratory data analysis to understand our datasets better.
+We use two main datasets to build our recommendation model. The first one is the interaction dataset with 87,047 interactions across 7,838 users and 15,291 books with timestamps for each interaction. The second dataset is a list of 15,291 books with title, author, publisher, subjects, and ISBN provided for each book. Before we start constructing our interaction model, it would be useful to conduct exploratory data analysis to understand our datasets better.
+
+### Missing Values in Books Dataset
+What worth notice is that there are quite a few of missing values in our book list as shown below:
+*   Missing author percentage: 17.35%
+*   Missing subject percentage: 14.54%
+*   Missing isbn percentage: 4.73%
+
 
 ### Interaction Data
 *   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
