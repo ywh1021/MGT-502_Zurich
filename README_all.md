@@ -12,16 +12,18 @@ This project implements a hybrid recommendation engine for a library dataset. Th
 
 ## 2. Exploratory Data Analysis (EDA)
 
-We use two main datasets to build our recommendation model. The first one is the interaction dataset with 87,047 interactions across 7,838 users and 15,291 books with timestamps for each interaction. The second dataset is a list of 15,291 books with title, author, publisher, subjects, and ISBN provided for each book. Before we start constructing our interaction model, it would be useful to conduct exploratory data analysis to understand our datasets better.
+We use two main datasets to build our recommendation model. The first one is the interaction dataset with 87,047 interactions across 7,838 users and 15,291 books with timestamps for each interaction. The second dataset is a list of 15,291 books with title, author, publisher, subjects, and ISBN provided for each book. In advance to constructing our interaction model, it would be useful to conduct exploratory data analysis to understand our datasets better.
 
-### Missing Values in Books Dataset
-What worth notice is that there are quite a few of missing values in our book list as shown below:
-*   Missing author percentage: 17.35%
-*   Missing subject percentage: 14.54%
-*   Missing isbn percentage: 4.73%
+### Missing Values in the Books Dataset
+In advance of diving into the EDA process, it is crucial to address the completeness of our book metadata. A preliminary check reveals a notable proportion of missing values across key attributes:
+*   Author: 17.35% missing
+*   Subject: 14.54% missing
+*   ISBN: 4.73% missing
+*   Publisher: 0.16% missing
+While pure collaborative filtering (CF) models rely solely on user-item interaction matrices and remain unaffected by these gaps, such metadata becomes vital when developing advanced hybrid or content-based models. To build a more robust recommendation system moving forward, we can leverage the available ISBN data and try to query external databases via open-source APIs, allowing us to impute the missing authors and subjects effectively.
 
 
-### Interaction Data
+### EDA with Graphs
 *   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
     
     <img src="./images/interaction.jpeg" width="500">
