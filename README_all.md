@@ -18,9 +18,9 @@ This project implements a hybrid recommendation engine for a library dataset. Th
     <img src="./images/interaction.jpeg" width="500">
     
 *   **User Activity:** From the bar chart demonstrated below, the majority of the users read fewer than 10 books. Although we still have some readers who interact with over 300 books, 69.06% users interact with less and 10 books, and 40.79% of the readers interact with even fewer than 5 books. Due to a lack of interaction data for many users, standard user-based collaborative filtering will struggle to find similar peers for these inactive users. To address this "cold-start" issue, our model will likely need to rely on hybrid approaches, incorporating book content features or baseline popularity metrics for early recommendations.
-    <img src="./images/user_activity_dist_3.jpeg" width="500">
+    <img src="./images/user_activity_4.jpeg" width="500">
 
-*   **Item Popularity:** Identifying the "Long Tail" in book rentals.
+*   **Item Popularity:** This chart reveals a long tail distribution in book interactions. The top 5% popular book account for 23.70% all interactions, while over half (52.23%) have fewer than 5 interactions. While recommend popular books can be useful, we need to be cautious of popularity bias, where the model defaults to suggesting only top hits for everyone. Implementing strategies like item-based collaborative filtering or content-based matching can possibly help us discover relevant hidden gems from the tail.
     <img src="./images/user_plot.jpeg" width="500">
 
 ### Items Metadata
