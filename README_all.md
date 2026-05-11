@@ -20,6 +20,7 @@ In advance of diving into the EDA process, it is crucial to address the complete
 *   Subject: 14.54% missing
 *   ISBN: 4.73% missing
 *   Publisher: 0.16% missing
+
 While pure collaborative filtering (CF) models rely solely on user-item interaction matrices and remain unaffected by these gaps, such metadata becomes vital when developing advanced hybrid or content-based models. To build a more robust recommendation system moving forward, we can leverage the available ISBN data and try to query external databases via open-source APIs, allowing us to impute the missing authors and subjects effectively.
 
 
