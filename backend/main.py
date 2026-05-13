@@ -11,6 +11,7 @@ from .schemas import (
     HealthResp,
     RecommendReq,
     RecommendResp,
+    SearchResp,
     SubcategoriesResp,
 )
 
@@ -51,6 +52,20 @@ def subcategories(book_type: str = Query(..., min_length=1)):
     return SubcategoriesResp(**payload)
 
 
+@app.get("/api/recommend/user/{user_id}", response_model=RecommendResp)
+def recommend_existing(user_id: int):
+    try:
+        recs = model_service.recommend_existing_user(app.state.recommender, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return RecommendResp(recommendations=recs)
+
+
+@app.get("/api/search", response_model=SearchResp)
+def search(q: str = Query(""), limit: int = Query(10, ge=1, le=50)):
+    return SearchResp(books=model_service.search_books(app.state.recommender, q, limit))
+
+
 @app.get("/api/books", response_model=BooksResp)
 def books(
     book_type: str = Query(..., min_length=1),
@@ -65,7 +80,12 @@ def books(
 @app.post("/api/recommend", response_model=RecommendResp)
 def recommend(req: RecommendReq):
     try:
-        recs = model_service.recommend(app.state.recommender, req.read_book_ids)
+        recs = model_service.recommend(
+            app.state.recommender,
+            req.read_book_ids,
+            liked_ids=req.liked_ids,
+            disliked_ids=req.disliked_ids,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return RecommendResp(recommendations=recs)

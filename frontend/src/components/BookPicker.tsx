@@ -9,11 +9,12 @@ interface Selection {
 
 interface Props {
   selections: Selection[];
-  onRecommendations: (recs: Recommendation[]) => void;
+  allowEmpty?: boolean;
+  onRecommendations: (recs: Recommendation[], profileIds: number[]) => void;
   onBack: () => void;
 }
 
-export function BookPicker({ selections, onRecommendations, onBack }: Props) {
+export function BookPicker({ selections, allowEmpty, onRecommendations, onBack }: Props) {
   const [books, setBooks] = useState<Book[] | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
@@ -58,8 +59,12 @@ export function BookPicker({ selections, onRecommendations, onBack }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      const r = await postRecommend([...selected]);
-      onRecommendations(r.recommendations);
+      const ids =
+        selected.size > 0
+          ? [...selected]
+          : (books ?? []).slice(0, 5).map((b) => b.id);
+      const r = await postRecommend(ids);
+      onRecommendations(r.recommendations, ids);
     } catch (e) {
       setError(String(e));
     } finally {
@@ -73,7 +78,9 @@ export function BookPicker({ selections, onRecommendations, onBack }: Props) {
   return (
     <>
       <p className="subtitle">
-        Tick the books you've read — we'll use these to recommend similar ones.
+        {allowEmpty
+          ? "Tick any books you recognise — or just skip ahead and we'll use the most popular ones."
+          : "Tick the books you've read — we'll use these to recommend similar ones."}
       </p>
       <input
         className="search"
@@ -115,9 +122,13 @@ export function BookPicker({ selections, onRecommendations, onBack }: Props) {
         <button
           className="btn primary"
           onClick={submit}
-          disabled={selected.size === 0 || submitting}
+          disabled={(!allowEmpty && selected.size === 0) || submitting}
         >
-          {submitting ? "Thinking…" : "Get recommendations →"}
+          {submitting
+            ? "Thinking…"
+            : selected.size === 0 && allowEmpty
+            ? "Recommend based on my genres →"
+            : "Get recommendations →"}
         </button>
       </div>
     </>

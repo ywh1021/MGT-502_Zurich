@@ -230,14 +230,74 @@ def books_in(state: RecommenderState, book_type: str, subcategory: str | None, l
     ]
 
 
-def recommend(state: RecommenderState, read_book_ids: list[int], k: int = 10,
-              content_w: float = 0.15) -> list[dict]:
-    remapped = [state.book_map[i] for i in read_book_ids if i in state.book_map]
+def recommend_existing_user(
+    state: RecommenderState, user_id: int, k: int = 10, content_w: float = 0.15
+) -> list[dict]:
+    if user_id < 0 or user_id >= state.n_users:
+        raise ValueError(f"User ID must be between 0 and {state.n_users - 1}.")
+    v = np.asarray(state.model.train_matrix[user_id], dtype=np.float32).flatten()
+    if v.sum() == 0:
+        raise ValueError(f"User {user_id} has no recorded interactions.")
+    top = recommend_for_user(v, state.model, k=k, content_w=content_w, exclude_seen=True)
+    rows = state.catalog.loc[top].reset_index()
+    out = []
+    for rank, (_, row) in enumerate(rows.iterrows(), start=1):
+        out.append({
+            "id": int(row["i"]),
+            "rank": rank,
+            "title": str(row["Title"]),
+            "author": str(row["Author"]),
+            "subjects": str(row["Subjects"]),
+            "book_type": str(row["book_type"]),
+            "discipline": str(row["discipline"]),
+            "topic": str(row["topic"]),
+        })
+    return out
+
+
+def search_books(state: RecommenderState, q: str, limit: int = 10) -> list[dict]:
+    q_lower = q.lower().strip()
+    if not q_lower:
+        return []
+    cat = state.catalog
+    mask = (
+        cat["Title"].str.lower().str.contains(q_lower, na=False, regex=False)
+        | cat["Author"].str.lower().str.contains(q_lower, na=False, regex=False)
+    )
+    df = cat[mask].sort_values("popularity", ascending=False).head(limit)
+    return [
+        {
+            "id": int(row["i"]),
+            "title": str(row["Title"]),
+            "author": str(row["Author"]),
+            "subjects": str(row["Subjects"]),
+            "popularity": int(row["popularity"]),
+        }
+        for _, row in df.iterrows()
+    ]
+
+
+def recommend(
+    state: RecommenderState,
+    read_book_ids: list[int],
+    liked_ids: list[int] | None = None,
+    disliked_ids: list[int] | None = None,
+    k: int = 10,
+    content_w: float = 0.15,
+) -> list[dict]:
+    # Profile = original reads + liked recommendations
+    profile_ids = list(read_book_ids) + list(liked_ids or [])
+    remapped = [state.book_map[i] for i in profile_ids if i in state.book_map]
     if not remapped:
         raise ValueError("no recognized books in read_book_ids")
     v = np.zeros(state.n_items, dtype=np.float32)
     v[remapped] = 1.0
-    top = recommend_for_user(v, state.model, k=k, content_w=content_w, exclude_seen=True)
+
+    # Fetch extra results so we can filter out disliked books
+    disliked_remapped = {state.book_map[i] for i in (disliked_ids or []) if i in state.book_map}
+    fetch_k = k + len(disliked_remapped)
+    top_all = recommend_for_user(v, state.model, k=fetch_k, content_w=content_w, exclude_seen=True)
+    top = [t for t in top_all if t not in disliked_remapped][:k]
     rows = state.catalog.loc[top].reset_index()
     out = []
     for rank, (_, row) in enumerate(rows.iterrows(), start=1):

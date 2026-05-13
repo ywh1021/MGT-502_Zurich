@@ -32,6 +32,16 @@ export interface Recommendation {
   topic: string;
 }
 
+export interface HealthResp {
+  status: string;
+  n_items: number;
+  n_users: number;
+}
+
+export interface SearchResp {
+  books: Book[];
+}
+
 export interface CategoriesResp {
   book_types: BookType[];
 }

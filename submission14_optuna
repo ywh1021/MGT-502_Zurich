@@ -1,0 +1,150 @@
+import numpy as np
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import csr_matrix, diags, bmat
+import warnings
+warnings.filterwarnings("ignore")
+
+# ==========================================
+# 1. BEST WEIGHTS FROM OPTUNA
+# ==========================================
+# Using your optimized normalized weights
+W_CF_TEMP    = 0.0840
+W_CF_COUNT   = 0.3127
+W_CONTENT    = 0.1002
+W_POP        = 0.0493
+W_GRAPH_BIN  = 0.2415
+W_GRAPH_CNT  = 0.2123
+
+# ==========================================
+# 2. HELPER FUNCTIONS
+# ==========================================
+
+def create_weighted_matrix(data, n_users, n_items, decay=0.03):
+    data_matrix = np.zeros((n_users, n_items))
+    for user_id, user_data in data.groupby('user_id'):
+        user_data = user_data.sort_values('timestamp')
+        n = len(user_data)
+        weights = np.array([(1 - decay) ** (n - 1 - i) for i in range(n)])
+        if weights.max() > 0: weights = weights / weights.max()
+        for i, (_, row) in enumerate(user_data.iterrows()):
+            data_matrix[int(row['user_id']), int(row['book_id'])] = weights[i]
+    return data_matrix
+
+def create_count_weighted_matrix(data, n_users, n_items):
+    data_matrix = np.zeros((n_users, n_items))
+    counts = data.groupby(['user_id', 'book_id']).size().reset_index(name='count')
+    for _, row in counts.iterrows():
+        data_matrix[int(row['user_id']), int(row['book_id'])] = np.log1p(row['count'])
+    return data_matrix
+
+def create_data_matrix(data, n_users, n_items):
+    data_matrix = np.zeros((n_users, n_items))
+    data_matrix[data["user_id"].values, data["book_id"].values] = 1
+    return data_matrix
+
+def user_based_predict(interactions, similarity, epsilon=1e-9):
+    return similarity.dot(interactions) / (np.abs(similarity).sum(axis=1)[:, np.newaxis] + epsilon)
+
+def item_based_predict(interactions, similarity, epsilon=1e-9):
+    pred = similarity.dot(interactions.T) / (similarity.sum(axis=1)[:, np.newaxis] + epsilon)
+    return pred.T
+
+def normalize_matrix(matrix):
+    min_val = matrix.min()
+    max_val = matrix.max()
+    return (matrix - min_val) / (max_val - min_val + 1e-9)
+
+def build_graph(matrix, n_users, n_items, alpha=0.7, n_iter=15):
+    R = csr_matrix(matrix)
+    zero_users = csr_matrix((n_users, n_users))
+    zero_items = csr_matrix((n_items, n_items))
+    adj = bmat([[zero_users, R], [R.T, zero_items]], format='csr')
+    row_sums = np.array(adj.sum(axis=1)).flatten()
+    row_sums[row_sums == 0] = 1
+    transition = diags(1.0 / row_sums).dot(adj)
+    n_total = n_users + n_items
+    graph_scores = np.zeros((n_users, n_items))
+    for batch_start in range(0, n_users, 200):
+        batch_end = min(batch_start + 200, n_users)
+        p = np.zeros((n_total, batch_end - batch_start))
+        for i, u_idx in enumerate(range(batch_start, batch_end)): p[u_idx, i] = 1.0
+        r = p.copy()
+        for _ in range(n_iter): r = alpha * transition.dot(r) + (1 - alpha) * p
+        graph_scores[batch_start:batch_end, :] = r[n_users:, :].T
+    return normalize_matrix(graph_scores)
+
+# ==========================================
+# 3. LOAD DATA & BUILD FINAL HYBRID
+# ==========================================
+print("Loading full data...")
+df = pd.read_csv("data/interactions_train.csv").rename(columns={'u': 'user_id', 'i': 'book_id', 't': 'timestamp'})
+books = pd.read_csv("data/items.csv")
+
+user_id_map = {orig: new for new, orig in enumerate(df['user_id'].unique())}
+book_id_map = {orig: new for new, orig in enumerate(df['book_id'].unique())}
+user_inv_map = {v: k for k, v in user_id_map.items()}
+book_inv_map = {v: k for k, v in book_id_map.items()}
+
+df['user_id'] = df['user_id'].map(user_id_map)
+df['book_id'] = df['book_id'].map(book_id_map)
+n_users, n_items = df['user_id'].nunique(), df['book_id'].nunique()
+
+print("Calculating all components on full data...")
+
+# CF Temporal
+mtx_temp = create_weighted_matrix(df, n_users, n_items)
+cf_temp = normalize_matrix(np.log1p(np.abs(user_based_predict(mtx_temp, cosine_similarity(mtx_temp)))))
+
+# CF Count
+mtx_count = create_count_weighted_matrix(df, n_users, n_items)
+cf_count = normalize_matrix(np.log1p(np.abs(user_based_predict(mtx_count, cosine_similarity(mtx_count)))))
+
+# Content
+print("  Processing Content...")
+for col in ['Author', 'Subjects', 'Publisher', 'Title']: books[col] = books[col].fillna('')
+books['text'] = books['Title'] + ' ' + books['Author'] + ' ' + books['Subjects']
+tfidf = TfidfVectorizer(max_features=10000, min_df=2).fit_transform(books['text'])
+mapping = {book_id_map[orig]: idx for idx, orig in enumerate(books['i']) if orig in book_id_map}
+
+content_scores = np.zeros((n_users, n_items))
+for u_idx in range(n_users):
+    b_indices = np.where(mtx_count[u_idx, :] > 0)[0]
+    valid_rows = [mapping[b] for b in b_indices if b in mapping]
+    if not valid_rows: continue
+    profile = tfidf[valid_rows].mean(axis=0)
+    scores = cosine_similarity(profile, tfidf).flatten()
+    for idx, orig_id in enumerate(books['i']):
+        if orig_id in book_id_map: content_scores[u_idx, book_id_map[orig_id]] = scores[idx]
+content_mtx = normalize_matrix(np.log1p(content_scores))
+
+# Popularity & Graphs
+pop_mtx = normalize_matrix(np.log1p(np.array(create_data_matrix(df, n_users, n_items).sum(axis=0)).flatten()))
+graph_bin = build_graph(create_data_matrix(df, n_users, n_items), n_users, n_items)
+graph_cnt = build_graph(mtx_count, n_users, n_items)
+
+# FINAL HYBRID MIX
+print("Mixing components into final hybrid...")
+final_scores = (
+    W_CF_TEMP * cf_temp + W_CF_COUNT * cf_count + 
+    W_CONTENT * content_mtx + W_POP * pop_mtx + 
+    W_GRAPH_BIN * graph_bin + W_GRAPH_CNT * graph_cnt
+)
+
+# ==========================================
+# 4. SAVE SUBMISSION
+# ==========================================
+print("Generating submission.csv...")
+with open("submission14_optuna.csv", "w") as f:
+    f.write("user_id,recommendation\n")
+    for u_idx in range(n_users):
+        # Zero out books user has already read
+        user_scores = final_scores[u_idx, :].copy()
+        user_scores[mtx_count[u_idx, :] > 0] = -1 
+        
+        top_k = np.argsort(user_scores)[::-1][:10]
+        rec_ids = " ".join([str(book_inv_map[idx]) for idx in top_k])
+        f.write(f"{user_inv_map[u_idx]},{rec_ids}\n")
+
+print("Done! File 'submission14_optuna.csv' is ready for Kaggle.")

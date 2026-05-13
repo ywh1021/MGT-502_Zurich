@@ -42,8 +42,14 @@ class BooksResp(BaseModel):
     books: list[Book]
 
 
+class SearchResp(BaseModel):
+    books: list[Book]
+
+
 class RecommendReq(BaseModel):
     read_book_ids: list[int] = Field(..., min_length=1)
+    liked_ids: list[int] = Field(default_factory=list)
+    disliked_ids: list[int] = Field(default_factory=list)
 
 
 class Recommendation(BaseModel):
