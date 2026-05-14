@@ -63,9 +63,11 @@ To improve recommendation quality, we enriched the original metadata using exter
 | **U + I + Content + Pop + Time decay** | **0.XXXX** | **0.XXXX** |
 | **XGBoost** | 0.0511 | 0.2738 |
 
-### Model Description
-*   **User-User:** 
-*   **Item-Item:** 
+## Model Description
+### Baseline Models: User-Based & Item-Based Collaborative Filtering
+To establish a solid baseline for our recommendation engine, we implemented classic user-based & item-based Collaborative Filtering (CF) models. Before training these models, we designed a rigorous evaluation framework to simulate real-world recommendation scenarios accurately.
+
+
 *   **User & Item Hybrid:** 
 *   **U + I + Content:**
 *   **U + I + Content + Pop + Time decay:**
