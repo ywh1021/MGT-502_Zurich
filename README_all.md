@@ -61,6 +61,7 @@ To improve recommendation quality, we enriched the original metadata using exter
 | **Model 3: User & Item Hybrid** | 0.0524 | 0.2681 |
 | **Model 4: U + I + Content** | 0.0532 | 0.2741 |
 | **Model 5: U + I + Content + Pop + Time decay** | **0.0555** | **0.2940** |
+| **Model 6: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized)** | 0.0560 | 0.2950 |
 | **XGBoost** | 0.0511 | 0.2738 |
 
 ## Model Description
@@ -70,7 +71,10 @@ To establish a solid baseline for our recommendation engine, we implemented clas
 
 *   **User & Item Hybrid:** 
 *   **U + I + Content:**
-*   **U + I + Content + Pop + Time decay:**
+*   **Model 5: U + I + Content + Pop + Time decay:**
+integrates Collaborative Filtering (75%), Content-Based Filtering (20%), and Global Popularity (5%). The CF component balances User-to-User (45%) and Item-to-Item (55%) similarities. The content part utilizes a TF-IDF vectorizer where Author and Subjects are given a doubled weight (Author×2,Subjects×2) to emphasize creator loyalty and thematic relevance. A temporal decay function is used to prioritize recent interests, with all scoring components calculated on a linear, non-logarithmic scale.
+* **Model 6: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized):**
+integrates five components with weights optimized via Optuna: Temporal CF (45.5%), Count-based CF (16.6%), Content Filtering (18.0%), Graph RWR (14.5%), and Global Popularity (5.4%). The Temporal CF component balances User-to-User (63.1%) and Item-to-Item (36.9%) similarities with a 0.03 decay factor. The Count-based CF reflects frequency-weighted interactions (53.7% User, 46.3% Item). The content part utilizes a frequency-weighted TF-IDF vectorizer (Author×2, Subjects×2). A Random Walk with Restart captures structural graph relationships (α=0.7, 15 iterations), while all scoring components are calculated using logarithmic (log1p) scaling to normalize frequency impacts.
 *   **XGBoost:**
 
 
