@@ -59,7 +59,7 @@ To improve recommendation quality, we enriched the original metadata using exter
 | **User-User CF** | 0.0477 | 0.2616 |
 | **Item-Item CF** | 0.0477 | 0.2359 |
 | **User & Item Hybrid** | 0.0524 | 0.2681 |
-| **U + I + Content** | **0.XXXX** | **0.XXXX** |
+| **U + I + Content** | 0.0532 | 0.2741 |
 | **U + I + Content + Pop + Time decay** | **0.XXXX** | **0.XXXX** |
 | **XGBoost** | **0.XXXX** | **0.XXXX** |
 
