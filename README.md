@@ -63,6 +63,7 @@ To improve recommendation quality, we enriched the original metadata using exter
 | **Model 5: U + I + Content + Pop + Time decay** | **0.0555** | **0.2940** |
 | **Model 6: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized)** | 0.0560 | 0.2950 |
 | **XGBoost** | 0.0511 | 0.2738 |
+| **Model 6 + Augmented Metadata (Google Books API + BnF)** | 0.0556 | 0.2932 |
 
 ## Model Description
 ### Baseline Models: User-Based & Item-Based Collaborative Filtering
