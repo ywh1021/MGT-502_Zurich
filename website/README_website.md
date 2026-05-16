@@ -6,20 +6,20 @@ A 3-step wizard that lets you browse books by category, tick a few you've read, 
 
 Two terminals.
 
-**Terminal 1 — backend** (port 8001):
+**Terminal 1 — backend** (port 8001), run from repo root:
 ```bash
-./.venv/bin/uvicorn backend.main:app --port 8001
+.venv/bin/uvicorn website.backend.main:app --port 8001
 ```
-Cold start fits the model (~5 s on this dataset) and writes `backend/cache/model.pkl` (~1.5 GB). Subsequent starts unpickle in ~3 s. The cache auto-invalidates when any of `interactions_train.csv`, `items.csv`, or `books_classified.csv` changes (mtime check).
+Cold start fits the model (~5 s on this dataset) and writes `website/backend/cache/model.pkl` (~1.5 GB). Subsequent starts unpickle in ~3 s. The cache auto-invalidates when any of `interactions_train.csv`, `items.csv`, or `books_classified.csv` changes (mtime check).
 
 **Terminal 2 — frontend** (port 5180):
 ```bash
-cd frontend && npm install   # first time only
+cd website/frontend && npm install   # first time only
 npm run dev
 ```
 Open <http://127.0.0.1:5180/>.
 
-To force a refit, delete `backend/cache/model.pkl`.
+To force a refit, delete `website/backend/cache/model.pkl`.
 
 ## Architecture
 
