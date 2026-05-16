@@ -43,6 +43,8 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
 
 *   **Repeat Borrowing:** 16.2% of unique (user, book) pairs were borrowed more than once, indicating strong affinity for specific titles. We tested a repeat-signal component that boosted frequently re-borrowed books, but it yielded only a marginal CV improvement (+0.0003) and no improvement on the Kaggle leaderboard.
 
+    <img src="./images/repeat_borrowing.jpeg" width="500">
+
 ---
 
 ## 3. Data Augmentation
