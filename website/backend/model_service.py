@@ -16,7 +16,7 @@ INTERACTIONS_CSV = ROOT / "data" / "interactions_train.csv"
 ITEMS_CSV = ROOT / "data" / "items.csv"
 CLASSIFIED_CSV = ROOT / "data" / "augmented" / "books_classified.csv"
 
-from inference import (
+from .inference import (
     FittedModel,
     build_interaction_matrix,
     fit,
