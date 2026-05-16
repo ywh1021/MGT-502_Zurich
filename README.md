@@ -45,7 +45,7 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
 
     <img src="./images/repeat_borrowing.jpeg" width="500">
 
-*   **Temporal Distribution:** Borrowings across 2023 show a mild seasonal pattern — a summer dip (Jul: 3,495; Aug: 3,852) and higher activity in winter/spring (Mar: 5,927; Jan–Feb: ~5,500). In 2024, interactions drop sharply from March onwards, reaching near-zero by October. The cause of this decline is unclear: it could be a data collection cutoff, or interactions from March–October 2024 may have been withheld for the Kaggle test set. We tested seasonal weighting (boosting Oct–Feb interactions and Mar–Oct 2023 books) but observed no consistent improvement in 5-fold CV, suggesting the Kaggle holdout is likely random across time — though we cannot rule out a temporal holdout.
+*   **Temporal Distribution:** Borrowings across 2023 show a mild seasonal pattern — a summer dip (Jul: 3,495; Aug: 3,852) and higher activity in winter/spring (Mar: 5,927; Jan–Feb: ~5,500). In 2024, interactions drop sharply from March onwards, reaching near-zero by October. The cause of this decline is unclear: it could be a data collection cutoff, or interactions from March–October 2024 may have been withheld for the Kaggle test set. We tested seasonal weighting (boosting autumn/winter interactions (Oct–Feb) and spring/summer interactions from 2023 (Mar–Sep)) but observed no consistent improvement in 5-fold CV, suggesting the Kaggle holdout is likely random across time — though we cannot rule out a temporal holdout.
 
     <img src="./images/temporal_distribution.jpeg" width="500">
 
