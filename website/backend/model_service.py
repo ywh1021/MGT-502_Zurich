@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 CACHE_PATH = Path(__file__).resolve().parent / "cache" / "model.pkl"
 INTERACTIONS_CSV = ROOT / "data" / "interactions_train.csv"
 ITEMS_CSV = ROOT / "data" / "items.csv"

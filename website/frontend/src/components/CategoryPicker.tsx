@@ -7,27 +7,27 @@ interface Props {
 }
 
 const COLORS: Record<string, string> = {
-  academic: "#7c5cdb",
-  fiction: "#c45db3",
-  non_fiction: "#4a7eff",
-  children: "#4abe8a",
-  young_adult: "#e05ca0",
-  comics: "#ff8c42",
-  practical: "#4ab8d0",
+  academic:           "#7c5cdb",
+  fiction:            "#c45db3",
+  non_fiction_general:"#4a7eff",
+  children:           "#4abe8a",
+  young_adult:        "#e05ca0",
+  comics:             "#ff8c42",
+  practical:          "#4ab8d0",
+  popular_science:    "#f5a623",
 };
 const FALLBACK = ["#7c5cdb", "#c45db3", "#4a7eff", "#4abe8a", "#ff8c42", "#4ab8d0", "#e05ca0"];
 
-function BookIcon({ color }: { color: string }) {
-  return (
-    <svg width="40" height="50" viewBox="0 0 40 50" fill="none" aria-hidden>
-      <rect x="5" y="0" width="30" height="44" rx="3" fill={color} opacity="0.25" />
-      <rect x="5" y="0" width="7" height="44" rx="2" fill={color} opacity="0.5" />
-      <rect x="14" y="0" width="21" height="44" rx="2" fill={color} opacity="0.8" />
-      <rect x="18" y="13" width="13" height="2" rx="1" fill="white" opacity="0.5" />
-      <rect x="18" y="18" width="9" height="2" rx="1" fill="white" opacity="0.3" />
-    </svg>
-  );
-}
+const EMOJI: Record<string, string> = {
+  academic:            "🎓",
+  fiction:             "🌌",
+  non_fiction_general: "🌍",
+  children:            "🧸",
+  young_adult:         "⚡",
+  comics:              "💥",
+  practical:           "🛠️",
+  popular_science:     "🔬",
+};
 
 export function CategoryPicker({ onConfirm }: Props) {
   const [bookTypes, setBookTypes] = useState<BookType[] | null>(null);
@@ -67,11 +67,14 @@ export function CategoryPicker({ onConfirm }: Props) {
               className={"tile" + (isSel ? " selected" : "")}
               onClick={() => toggle(bt.value)}
             >
-              <div className="tile-icon">
-                <BookIcon color={color} />
+              <div className="tile-img">
+                <div className="tile-glow" style={{ background: `radial-gradient(circle, ${color}44 0%, transparent 70%)` }} />
+                <span className="tile-emoji">{EMOJI[bt.value] ?? "📚"}</span>
               </div>
-              <div className="tile-label">{bt.label}</div>
-              <div className="tile-count">{bt.count.toLocaleString()} books</div>
+              <div className="tile-body">
+                <div className="tile-label">{bt.label}</div>
+                <div className="tile-count">{bt.count.toLocaleString()} books</div>
+              </div>
             </button>
           );
         })}

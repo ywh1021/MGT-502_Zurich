@@ -86,7 +86,7 @@ export function BookSearch({ onRecommendations, onBack }: Props) {
         <input
           className="search"
           type="search"
-          placeholder="e.g. Harry Potter, Tolstoy, Dune…"
+          placeholder="e.g. Demon Slayer, Vagabond, Spy x Family…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}

@@ -44,22 +44,22 @@ export function HomePage({ onSearch, onGenre, onUserId }: Props) {
       {/* Path selection */}
       <div className="path-intro">
         <p className="path-quote">Let's find your next favorite book!</p>
-        <p className="path-prompt">How should we start?</p>
+        <p className="path-prompt">Three ways to begin</p>
       </div>
       <div className="path-grid">
-        <button className="path-card" onClick={onSearch}>
-          <div className="path-icon">📖</div>
-          <div className="path-title">I love these…</div>
-          <div className="path-desc">
-            Name a few books you've enjoyed, and I'll find something similar.
-          </div>
-          <div className="path-arrow">→</div>
-        </button>
-        <button className="path-card" onClick={onGenre}>
+        <button className="path-card path-card-featured" onClick={onGenre}>
           <div className="path-icon">✨</div>
           <div className="path-title">Surprise me!</div>
           <div className="path-desc">
-            Pick a genre, and let's see what's popular.
+            Explore by genre and see what readers love
+          </div>
+          <div className="path-arrow">→</div>
+        </button>
+        <button className="path-card" onClick={onSearch}>
+          <div className="path-icon">🧡</div>
+          <div className="path-title">I love these…</div>
+          <div className="path-desc">
+            Tell me your favorite books, and I'll suggest what to read next
           </div>
           <div className="path-arrow">→</div>
         </button>
@@ -67,7 +67,7 @@ export function HomePage({ onSearch, onGenre, onUserId }: Props) {
           <div className="path-icon">👋</div>
           <div className="path-title">Welcome back</div>
           <div className="path-desc">
-            Enter your Reader ID to get picks based on your history.
+            Enter your Reader ID, and I'll recommend books based on your history
           </div>
           <div className="path-arrow">→</div>
         </button>

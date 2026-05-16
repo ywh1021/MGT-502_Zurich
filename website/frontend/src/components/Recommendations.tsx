@@ -9,9 +9,6 @@ interface Props {
   onBack: () => void;
 }
 
-function truncate(s: string, n: number) {
-  return s.length > n ? s.slice(0, n - 1) + "…" : s;
-}
 
 function chipsFor(r: Recommendation): string[] {
   const chips: string[] = [r.book_type.replace(/_/g, " ")];
@@ -85,6 +82,12 @@ export function Recommendations({ recs: initialRecs, profileIds, onStartOver, on
   const hasNewRatings = liked.size > 0 || disliked.size > 0;
   const canRefine = hasNewRatings && (profileIds.length > 0 || allLiked.size + liked.size > 0);
 
+  const SPINE_COLORS = [
+    "#c45db3", "#7c5cdb", "#5c8edb", "#4abe8a",
+    "#db9f5c", "#db6b5c", "#5cdbcd", "#9bdb5c",
+    "#db5ca8", "#5c6edb",
+  ];
+
   return (
     <>
       <div className="recs-header">
@@ -102,43 +105,38 @@ export function Recommendations({ recs: initialRecs, profileIds, onStartOver, on
         👍 like a book to refine your taste · 👎 dislike to skip similar ones
       </p>
 
-      <div className="recs">
-        {recs.map((r) => {
+      <div className="book-shelf">
+        {recs.map((r, idx) => {
           const isLiked = liked.has(r.id);
           const isDisliked = disliked.has(r.id);
+          const spineColor = SPINE_COLORS[idx % SPINE_COLORS.length];
           return (
             <div
               key={r.id}
-              className={
-                "rec" +
-                (isLiked ? " rec-liked" : "") +
-                (isDisliked ? " rec-disliked" : "")
-              }
+              className={"book-card" + (isLiked ? " book-liked" : "") + (isDisliked ? " book-disliked" : "")}
             >
-              <div className="rank">{r.rank}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="title">{r.title}</div>
-                {r.author && <div className="author">{r.author}</div>}
-                {r.subjects && (
-                  <div className="subjects">{truncate(r.subjects, 120)}</div>
-                )}
-                <div className="chips">
-                  {chipsFor(r).map((c) => (
+              <div className="book-spine" style={{ background: spineColor }} />
+              <div className="book-cover-inner">
+                <div className="book-card-rank">#{r.rank}</div>
+                <div className="book-card-title">{r.title}</div>
+                {r.author && <div className="book-card-author">{r.author}</div>}
+                <div className="book-card-chips">
+                  {chipsFor(r).slice(0, 1).map((c) => (
                     <span key={c} className="chip">{c}</span>
                   ))}
                 </div>
-              </div>
-              <div className="rec-feedback">
-                <button
-                  className={"feedback-btn" + (isLiked ? " active-like" : "")}
-                  onClick={() => toggleLiked(r.id)}
-                  title="I'd like to read this"
-                >👍</button>
-                <button
-                  className={"feedback-btn" + (isDisliked ? " active-dislike" : "")}
-                  onClick={() => toggleDisliked(r.id)}
-                  title="Not interested"
-                >👎</button>
+                <div className="book-card-actions">
+                  <button
+                    className={"feedback-btn" + (isLiked ? " active-like" : "")}
+                    onClick={() => toggleLiked(r.id)}
+                    title="I'd like to read this"
+                  >👍</button>
+                  <button
+                    className={"feedback-btn" + (isDisliked ? " active-dislike" : "")}
+                    onClick={() => toggleDisliked(r.id)}
+                    title="Not interested"
+                  >👎</button>
+                </div>
               </div>
             </div>
           );

@@ -1,5 +1,7 @@
-frontend/node_modules/
-frontend/dist/
+website/frontend/node_modules/
+website/frontend/dist/
+website/backend/cache/
+frontend/.vite/
 .DS_Store
 __pycache__
 backend/cache/

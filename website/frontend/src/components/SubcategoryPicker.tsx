@@ -2,6 +2,69 @@ import { useEffect, useState } from "react";
 import { getSubcategories } from "../api";
 import type { BookType, Subcategory } from "../types";
 
+const SUB_EMOJI: Record<string, string> = {
+  // disciplines
+  history:                    "🏛️",
+  law:                        "⚖️",
+  arts_art_history:           "🎨",
+  literature_studies:         "📜",
+  medicine_health:            "🏥",
+  education_sciences:         "🏫",
+  philosophy:                 "💭",
+  sociology:                  "👥",
+  psychology:                 "🧠",
+  linguistics:                "🗣️",
+  economics_management:       "📊",
+  political_science:          "🗳️",
+  religion_theology:          "☮️",
+  anthropology_ethnology:     "🗿",
+  biology:                    "🧬",
+  mathematics:                "📐",
+  communication_media_studies:"📡",
+  interdisciplinary:          "🌐",
+  geography:                  "🗺️",
+  library_information_science:"📚",
+  environmental_sciences:     "🌿",
+  computer_science:           "💻",
+  physics:                    "⚛️",
+  chemistry:                  "⚗️",
+  astronomy_space:            "🔭",
+  earth_sciences:             "🌍",
+  agriculture_food_sciences:  "🌾",
+  engineering_technology:     "⚙️",
+  // topics
+  biography_memoir:           "👤",
+  current_affairs_politics:   "📰",
+  history_civilization:       "🏺",
+  travel:                     "✈️",
+  education_learning:         "📚",
+  personal_development:       "🌱",
+  health_wellness:            "💪",
+  art_culture:                "🎭",
+  cooking_food:               "🍳",
+  parenting_family:           "👨‍👩‍👧",
+  career_business:            "💼",
+  nature_animals:             "🦋",
+  science_technology:         "🚀",
+  language_learning:          "💬",
+  crafts_hobbies:             "🧶",
+  sports_fitness:             "⚽",
+  home_garden:                "🏡",
+  relationships:              "💕",
+  spirituality:               "🕯️",
+  food_drink_culture:         "🍷",
+  true_crime:                 "🔍",
+  religion_practice:          "🙏",
+  finance_money:              "💰",
+  games_entertainment:        "🎮",
+};
+
+const PALETTE = [
+  "#7c5cdb", "#c45db3", "#4a7eff", "#4abe8a",
+  "#ff8c42", "#4ab8d0", "#e05ca0", "#f5a623",
+  "#9bdb5c", "#db6b5c",
+];
+
 interface Props {
   categories: BookType[];
   onConfirm: (subcategoryMap: Map<string, string[]>) => void;
@@ -63,16 +126,23 @@ export function SubcategoryPicker({ categories, onConfirm, onBack }: Props) {
               <span className="sub-group-axis"> — pick a {axisLabel}</span>
             </div>
             <div className="grid">
-              {subs.map((s) => {
+              {subs.map((s, idx) => {
                 const isSel = selectedSet.has(s.value);
+                const color = PALETTE[idx % PALETTE.length];
                 return (
                   <button
                     key={s.value}
                     className={"tile" + (isSel ? " selected" : "")}
                     onClick={() => toggle(cat.value, s.value)}
                   >
-                    <div className="tile-label">{s.label}</div>
-                    <div className="tile-count">{s.count.toLocaleString()} books</div>
+                    <div className="tile-img">
+                      <div className="tile-glow" style={{ background: `radial-gradient(circle, ${color}44 0%, transparent 70%)` }} />
+                      <span className="tile-emoji">{SUB_EMOJI[s.value] ?? "📖"}</span>
+                    </div>
+                    <div className="tile-body">
+                      <div className="tile-label">{s.label}</div>
+                      <div className="tile-count">{s.count.toLocaleString()} books</div>
+                    </div>
                   </button>
                 );
               })}

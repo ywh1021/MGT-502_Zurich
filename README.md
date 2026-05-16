@@ -1,95 +1,116 @@
-# Book Recommender — local web app
+# Book Recommendation System
 
-A 3-step wizard that lets you browse books by category, tick a few you've read, and get hybrid recommendations. Wraps the recommender in [`inference.py`](inference.py) with a FastAPI backend and a Vite + React frontend.
+[![Leaderboard Score](https://img.shields.io/badge/Leaderboard-0.1452%2B-green)](#performance-summary)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-## Running
+> **Project Video Presentation:** [Link to your video here]
 
-Two terminals.
+## 1. Project Overview
+This project implements a hybrid recommendation engine for a library dataset. The goal is to achieve a Precision@10 score higher than **0.1452** on the competition leaderboard by leveraging collaborative filtering and advanced machine learning techniques.
 
-**Terminal 1 — backend** (port 8001):
+---
+
+## 2. Exploratory Data Analysis (EDA)
+
+We use two main datasets to build our recommendation model. The first one is the interaction dataset with 87,047 interactions across 7,838 users and 15,291 books with timestamps for each interaction. The second dataset is a list of 15,291 books with title, author, publisher, subjects, and ISBN provided for each book. In advance to constructing our interaction model, it would be useful to conduct exploratory data analysis to understand our datasets better.
+
+### Missing Values in the Books Dataset
+In advance of diving into the EDA process, it is crucial to address the completeness of our book metadata. A preliminary check reveals a notable proportion of missing values across key attributes:
+*   Author: 17.35% missing
+*   Subject: 14.54% missing
+*   ISBN: 4.73% missing
+*   Publisher: 0.16% missing
+
+While pure collaborative filtering (CF) models rely solely on user-item interaction matrices and remain unaffected by these gaps, such metadata becomes vital when developing advanced hybrid or content-based models. To build a more robust recommendation system moving forward, we can leverage the available ISBN data and try to query external databases via open-source APIs, allowing us to impute the missing authors and subjects effectively.
+
+
+### EDA with Graphs
+*   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
+    
+    <img src="./images/interaction.jpeg" width="500">
+    
+*   **User Activity:** From the bar chart demonstrated below, the majority of the users read fewer than 10 books. Although we still have some readers who interact with over 300 books, 69.06% users interact with less and 10 books, and 40.79% of the readers interact with even fewer than 5 books. Due to a lack of interaction data for many users, standard user-based collaborative filtering will struggle to find similar peers for these inactive users. To address this "cold-start" issue, our model will likely need to rely on hybrid approaches, incorporating book content features or baseline popularity metrics for early recommendations.
+
+    <img src="./images/user_activity_4.jpeg" width="500">
+
+*   **Item Popularity:** This chart reveals a long tail distribution in book interactions. The top 5% popular book account for 23.70% all interactions, while over half (52.23%) have fewer than 5 interactions. While recommend popular books can be useful, we need to be cautious of popularity bias, where the model defaults to suggesting only top hits for everyone. Implementing strategies like item-based collaborative filtering or content-based matching can possibly help us discover relevant hidden gems from the tail.
+
+    <img src="./images/user_plot.jpeg" width="500">
+
+*   **Reader Loyalty:** evaluate author preference, we calculated the 'average books read per author' for 4,641 active users (those with ≥ 5 read books). The resulting chart displays a heavily right-skewed distribution. The dominant peak at 1.0 indicates that most users are "Pure Explorers," typically consuming only one book per author. Conversely, the extended right tail reveals a dedicated segment of "Loyal Fans," with 20.2% of active users reading multiple works (≥ 2) by the same author. This behavioral divide suggests a dual recommendation strategy: leveraging collaborative filtering to capture the diverse, cross-author tastes of the majority, while integrating author-based content features to satisfy the specific preferences of niche loyalists.
+  
+    <img src="./images/reader_loyalty.jpeg" width="500"> 
+
+---
+
+## 3. Data Augmentation
+To improve recommendation quality, we enriched the original metadata using external sources:
+*   **Google Books API:** Fetched missing descriptions and categories.
+*   **ISBNDB:** (Optional) Supplemented publisher and language data.
+*   **Feature Engineering:** Combined original metadata with augmented text data for content-based signals.
+
+---
+
+## 4. Model Architectures & Experiments
+
+### Performance Summary (Validation Results)
+| Technique | Precision@10 | Recall@10 |
+| :--- | :--- | :--- |
+| **Model 1: User-User CF** | 0.0477 | 0.2616 |
+| **Model 2: Item-Item CF** | 0.0477 | 0.2359 |
+| **Model 3: User & Item Hybrid** | 0.0524 | 0.2681 |
+| **Model 4: U + I + Content** | 0.0532 | 0.2741 |
+| **Model 5: U + I + Content + Pop + Time decay** | **0.0555** | **0.2940** |
+| **Model 6: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized)** | 0.0560 | 0.2950 |
+| **XGBoost** | 0.0511 | 0.2738 |
+
+## Model Description
+### Baseline Models: User-Based & Item-Based Collaborative Filtering
+To establish a solid baseline for our recommendation engine, we implemented classic user-based & item-based Collaborative Filtering (CF) models. Before training these models, we designed a rigorous evaluation framework to simulate real-world recommendation scenarios accurately.
+
+
+*   **User & Item Hybrid:** 
+*   **U + I + Content:**
+*   **Model 5: U + I + Content + Pop + Time decay:**
+integrates Collaborative Filtering (75%), Content-Based Filtering (20%), and Global Popularity (5%). The CF component balances User-to-User (45%) and Item-to-Item (55%) similarities. The content part utilizes a TF-IDF vectorizer where Author and Subjects are given a doubled weight (Author×2,Subjects×2) to emphasize creator loyalty and thematic relevance. A temporal decay function is used to prioritize recent interests, with all scoring components calculated on a linear, non-logarithmic scale.
+* **Model 6: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized):**
+integrates five components with weights optimized via Optuna: Temporal CF (45.5%), Count-based CF (16.6%), Content Filtering (18.0%), Graph RWR (14.5%), and Global Popularity (5.4%). The Temporal CF component balances User-to-User (63.1%) and Item-to-Item (36.9%) similarities with a 0.03 decay factor. The Count-based CF reflects frequency-weighted interactions (53.7% User, 46.3% Item). The content part utilizes a frequency-weighted TF-IDF vectorizer (Author×2, Subjects×2). A Random Walk with Restart captures structural graph relationships (α=0.7, 15 iterations), all scoring components are calculated using logarithmic (log1p) scaling to normalize frequency impacts.
+*   **XGBoost:**
+
+
+### Hyper-parameter Optimization
+We used [Method, e.g., Optuna / GridSearch] to tune:
+*   K-neighbors for CF models.
+*   Learning rates and depth for Boosting models.
+*   Embedding dimensions for Matrix Factorization.
+
+> **Note:** The above results are calculated using Cross-Validation on the training set to ensure label integrity.
+
+---
+
+## 5. Evaluation: The Best Model
+The **[Insert Best Model Name, e.g., XGBoost Hybrid]** outperformed others by integrating collaborative signals with item metadata. 
+
+### Good vs. Bad Predictions
+#### Good Predictions
+*   **User A History:** [List 1-2 genres/books]
+*   **Recommendation:** [Book X]
+*   **Why it works:** Align with the user's preference for [Genre].
+
+#### Bad Predictions
+*   **User B History:** [List 1-2 genres/books]
+*   **Recommendation:** [Book Y]
+*   **Why it failed:** Likely due to [Reason, e.g., Popularity bias or niche interest].
+
+---
+
+## 6. How to Run the Code
 ```bash
-./.venv/bin/uvicorn backend.main:app --port 8001
-```
-Cold start fits the model (~5 s on this dataset) and writes `backend/cache/model.pkl` (~1.5 GB). Subsequent starts unpickle in ~3 s. The cache auto-invalidates when any of `interactions_train.csv`, `items.csv`, or `books_classified.csv` changes (mtime check).
+# Clone the repository
+git clone [https://github.com/your-username/your-repo.git](https://github.com/your-username/your-repo.git)
 
-**Terminal 2 — frontend** (port 5180):
-```bash
-cd frontend && npm install   # first time only
-npm run dev
-```
-Open <http://127.0.0.1:5180/>.
+# Install dependencies
+pip install -r requirements.txt
 
-To force a refit, delete `backend/cache/model.pkl`.
-
-## Architecture
-
-```
-┌──────────────────────┐      ┌──────────────────────┐      ┌──────────────────────┐
-│  React wizard        │      │  FastAPI             │      │  inference.py    │
-│  (Vite, port 5180)   │ ───► │  (uvicorn, 8001)     │ ───► │  (untouched)         │
-│                      │      │                      │      │                      │
-│  CategoryPicker  ──┐ │      │  /api/categories     │      │  load_data           │
-│  SubcategoryPicker │ │ /api │  /api/subcategories  │      │  fit                 │
-│  BookPicker      ──┤ │ ───► │  /api/books          │      │  recommend_for_user  │
-│  Recommendations   │ │      │  /api/recommend      │      │                      │
-└──────────────────────┘      └──────────────────────┘      └──────────────────────┘
-       proxy /api → 8001              loads at startup,            cosine sims +
-       (vite.config.ts)               pickles to cache             TF-IDF content
-                                                                   blend
-```
-
-### Data flow
-
-1. **Startup**: `model_service.load_or_fit()` either unpickles a cached `FittedModel` + book/item maps, or calls `inference.load_data` + `fit` and persists the result. A `catalog` DataFrame (one row per item, indexed by remapped `book_id`) is built from `books_classified.csv` joined with title/author and per-item interaction counts.
-
-2. **Browse**: `/api/categories` lists 7 visible `book_type`s (hides `reference`/`other`) with a per-type **axis** = `"discipline"`, `"topic"`, or `"none"`. The axis is whichever classification field has more non-`not_applicable` rows. Academic → `discipline`; comics/practical/etc. → `topic`; fiction/children → `none` (skip subcategory step). `/api/subcategories` and `/api/books` filter the catalog accordingly, sorted by popularity.
-
-3. **Recommend**: the UI sends back original book `i` values from `items.csv`. `model_service.recommend()` translates them via `book_map` to remapped indices, builds a 0/1 cold-start `user_vector` of length `n_items`, and calls `inference.recommend_for_user`. The returned indices are reverse-translated by looking up the catalog (indexed by remapped `book_id`).
-
-### Why a disk cache
-
-The expensive step is `fit`: building 7838×7838 user-similarity and 15109×15109 item-similarity cosine matrices (~1.5 GB combined). Fitting takes a few seconds; loading the pickle is faster, and avoids re-paying the cost on every reload during dev. Cache key = mtime tuple of the three CSVs, embedded in the pickle.
-
-### Why two ports + Vite proxy
-
-The frontend uses relative URLs (`/api/...`). Vite proxies them to the FastAPI process. This keeps the browser on a single origin (no CORS preflights) and lets you run the backend on a different port from the frontend without coupling them.
-
-## Layout
-
-```
-.
-├── inference.py            # the recommender — untouched
-├── items.csv                   # (Title, Author, Subjects, ...)
-├── interactions_train.csv      # (user, item, timestamp)
-├── books_classified.csv        # (book_type, discipline, topic) per item
-├── backend/
-│   ├── main.py                 # FastAPI app, lifespan, CORS, routes
-│   ├── model_service.py        # load_or_fit, build_catalog, recommend
-│   ├── schemas.py              # Pydantic request/response models
-│   └── cache/model.pkl         # gitignored, written on first run
-└── frontend/
-    ├── vite.config.ts          # proxy /api → 127.0.0.1:8001, port 5180
-    └── src/
-        ├── App.tsx             # wizard state machine
-        ├── api.ts              # typed fetch wrappers
-        ├── types.ts
-        └── components/         # CategoryPicker, SubcategoryPicker, BookPicker, Recommendations
-```
-
-## API reference
-
-| Method | Path | Notes |
-|---|---|---|
-| GET | `/api/health` | `{status, n_items, n_users}`; gates the UI until the model is loaded. |
-| GET | `/api/categories` | Returns 7 `book_type`s with `{value, label, count, axis}`. |
-| GET | `/api/subcategories?book_type=` | Returns `{axis, subcategories: [{value, label, count}]}`. Empty when `axis="none"`. |
-| GET | `/api/books?book_type=&subcategory=&limit=50` | Popular books in the area, sorted by interaction count. |
-| POST | `/api/recommend` | Body `{read_book_ids: [int, ...]}` (≥1). Returns 10 ranked recommendations. |
-
-`k=10` and `content_w=0.15` are hardcoded server-side, matching the recommender's defaults.
-
-## Hardcoded knobs
-
-- Hidden book_types: `reference`, `other`. Edit `HIDDEN_BOOK_TYPES` in [backend/model_service.py](backend/model_service.py).
-- Top recommendations per call: 10. Content weight: 0.15. Edit the call to `recommend_for_user` in `recommend()`.
-- Books per browse page: 50. Configurable via the `limit` query param (1–200).
+# Run the training & evaluation script
+python main.py

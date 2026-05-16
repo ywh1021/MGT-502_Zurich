@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getBooks, postRecommend } from "../api";
 import type { Book, Recommendation } from "../types";
 
@@ -18,8 +18,20 @@ export function BookPicker({ selections, allowEmpty, onRecommendations, onBack }
   const [books, setBooks] = useState<Book[] | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => {
     Promise.all(selections.map((s) => getBooks(s.book_type, s.subcategory, 50)))
@@ -45,6 +57,11 @@ export function BookPicker({ selections, allowEmpty, onRecommendations, onBack }
         b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q),
     );
   }, [books, search]);
+
+  const suggestions = useMemo(() => {
+    if (!search.trim() || search.trim().length < 2) return [];
+    return filtered.slice(0, 8);
+  }, [filtered, search]);
 
   function toggle(id: number) {
     setSelected((prev) => {
@@ -82,13 +99,34 @@ export function BookPicker({ selections, allowEmpty, onRecommendations, onBack }
           ? "Tick any books you recognise — or just skip ahead and we'll use the most popular ones."
           : "Tick the books you've read — we'll use these to recommend similar ones."}
       </p>
-      <input
-        className="search"
-        type="search"
-        placeholder="Filter by title or author…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="search-wrap" ref={wrapRef}>
+        <input
+          className="search"
+          type="search"
+          placeholder="Filter by title or author…"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setDropdownOpen(true); }}
+          onFocus={() => suggestions.length > 0 && setDropdownOpen(true)}
+        />
+        {dropdownOpen && suggestions.length > 0 && (
+          <div className="search-dropdown">
+            {suggestions.map((b) => (
+              <button
+                key={b.id}
+                className="search-result"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => { toggle(b.id); setSearch(""); setDropdownOpen(false); }}
+              >
+                <div className="meta">
+                  <div className="title">{b.title}</div>
+                  {b.author && <div className="author">{b.author}</div>}
+                </div>
+                <span className="search-add">{selected.has(b.id) ? "✓" : "+"}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="book-list">
         {filtered.map((b) => {
           const isSel = selected.has(b.id);
