@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CACHE_PATH = Path(__file__).resolve().parent / "cache" / "model.pkl"
 INTERACTIONS_CSV = ROOT / "data" / "interactions_train.csv"
 ITEMS_CSV = ROOT / "data" / "items.csv"
-CLASSIFIED_CSV = ROOT / "books_classified.csv"
+CLASSIFIED_CSV = ROOT / "data" / "augmented" / "books_classified.csv"
 
 # inference.py lives at repo root; make it importable.
 sys.path.insert(0, str(ROOT))
