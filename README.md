@@ -25,33 +25,23 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
 
 
 ### EDA with Graphs
-
-| Metric | Value |
-|---|---|
-| Total interactions | 87,047 |
-| Users with < 10 borrowings | 69.1% |
-| Users with < 5 borrowings | 40.8% |
-| Matrix sparsity | 99.93% |
-| Repeat borrowings (same user + book) | 16.2% of pairs |
-| Loyal readers (avg ≥ 2 books/author) | 20.6% of active users |
-
-*   **Interaction Matrix:** A smooth diagonal frontier separates active from inactive regions — highly unusual for real library data and a strong indicator that the dataset is **synthetically generated**. Users with higher IDs interact with a broader range of books. We deliberately chose not to exploit this boundary to keep the model generalisable.
-
+*   **Interaction Matrix:** The interaction matrix below provides an initial visual overview of our dataset. A smooth frontier is visible, which is highly unusual of real-world interaction data and strongly suggests that this dataset was synthetically generated. Furthermore, we observe that users with higher IDs exhibit a broader range of book interactions across the item spectrum. Conversely, users with IDs below 2,000 interact more densely but are confined to a limited subset of books. While recommending based on this mathematical boundary could inflate our prediction scores, we have intentionally chosen to ignore this artifact. Exploiting it would lead to a model that fails to generalize to real-world recommendation scenarios.
+    
     <img src="./images/interaction.jpeg" width="500">
-
-*   **User Activity:** 69.1% of users borrowed fewer than 10 books, making standard CF unreliable for most users. This sparsity is the primary motivation for adding content-based and graph-based signals.
+    
+*   **User Activity:** From the bar chart demonstrated below, the majority of the users read fewer than 10 books. Although we still have some readers who interact with over 300 books, 69.06% users interact with less and 10 books, and 40.79% of the readers interact with even fewer than 5 books. Due to a lack of interaction data for many users, standard user-based collaborative filtering will struggle to find similar peers for these inactive users. To address this "cold-start" issue, our model will likely need to rely on hybrid approaches, incorporating book content features or baseline popularity metrics for early recommendations.
 
     <img src="./images/user_activity_4.jpeg" width="500">
 
-*   **Item Popularity:** Classic long-tail distribution — the top 5% of books account for 23.7% of all interactions, while 52.2% of books have fewer than 5 interactions. We log-normalise popularity (5% weight) to use it as a gentle tiebreaker without creating a popularity bias.
+*   **Item Popularity:** This chart reveals a long tail distribution in book interactions. The top 5% popular book account for 23.70% all interactions, while over half (52.23%) have fewer than 5 interactions. While recommend popular books can be useful, we need to be cautious of popularity bias, where the model defaults to suggesting only top hits for everyone. Implementing strategies like item-based collaborative filtering or content-based matching can possibly help us discover relevant hidden gems from the tail.
 
     <img src="./images/user_plot.jpeg" width="500">
 
-*   **Reader Loyalty:** For active users (≥5 interactions), 20.6% are "loyal fans" who read 2+ books by the same author. This motivated the **Author×2** weighting in our TF-IDF representation.
-
+*   **Reader Loyalty:** evaluate author preference, we calculated the 'average books read per author' for 4,641 active users (those with ≥ 5 read books). The resulting chart displays a heavily right-skewed distribution. The dominant peak at 1.0 indicates that most users are "Pure Explorers," typically consuming only one book per author. Conversely, the extended right tail reveals a dedicated segment of "Loyal Fans," with 20.2% of active users reading multiple works (≥ 2) by the same author. This behavioral divide suggests a dual recommendation strategy: leveraging collaborative filtering to capture the diverse, cross-author tastes of the majority, while integrating author-based content features to satisfy the specific preferences of niche loyalists.
+  
     <img src="./images/reader_loyalty.jpeg" width="500">
 
-*   **Repeat Borrowing:** 16.2% of unique (user, book) pairs were borrowed more than once. We tested a repeat-signal component that boosted frequently re-borrowed books, but it yielded only marginal CV improvement (+0.0003) and no Kaggle gain.
+*   **Repeat Borrowing:** 16.2% of unique (user, book) pairs were borrowed more than once, indicating strong affinity for specific titles. We tested a repeat-signal component that boosted frequently re-borrowed books, but it yielded only a marginal CV improvement (+0.0003) and no improvement on the Kaggle leaderboard.
 
 ---
 
