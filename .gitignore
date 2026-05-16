@@ -3,6 +3,7 @@ website/frontend/dist/
 website/backend/cache/
 frontend/.vite/
 .DS_Store
+*.env
 __pycache__
 backend/cache/
 data/*
