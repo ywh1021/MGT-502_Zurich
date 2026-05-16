@@ -114,7 +114,7 @@ We used **Optuna** (200 trials, 5-fold average as objective) to search for optim
 ### Cross-Validation Strategy
 All CV results use temporal 5-fold cross-validation: for each user, interactions are split chronologically into 5 equal folds, with each fold taking a turn as the test set (20% of interactions) while the remaining 80% are used for training. The final score is the average across all 5 folds.
 
-An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** (which would be the most natural choice for time-series data, as it simulates predicting the future from the past). This suggests that the Kaggle test set may be a **random holdout** across time rather than a strictly temporal one — making the 5-fold average a more reliable proxy for the true evaluation. We tested this hypothesis by boosting Oct–Feb interactions and spring/summer books from 2023 — neither produced consistent improvement in 5-fold CV or in a dedicated temporal holdout validation (holding out Mar–Oct 2023), which is weakly consistent with a random holdout. However, we cannot rule out a temporal holdout entirely.
+An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** — which would be the natural choice for time-series data. We investigated whether the Kaggle test set is a random or temporal holdout by testing period-specific popularity boosts and dedicated temporal validations. None produced consistent improvement, suggesting the holdout is likely **random across time** — though we cannot fully rule out a temporal holdout given the visible data drop-off from March 2024.
 
 ---
 
