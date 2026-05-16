@@ -45,6 +45,10 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
 
     <img src="./images/repeat_borrowing.jpeg" width="500">
 
+*   **Temporal Distribution:** Borrowings across 2023 (full year) are roughly uniform with no strong seasonal peak (~3,500–5,900 per month). The sharp decline in 2024 is a data collection artifact — the dataset ends in October 2024. The absence of seasonality supports our hypothesis that the **Kaggle test set is a random holdout across time** rather than a recent-month holdout. This was confirmed experimentally: seasonal weighting produced no improvement, and 5-fold CV averaging outperformed last-fold-only evaluation as a Kaggle proxy.
+
+    <img src="./images/temporal_distribution.jpeg" width="500">
+
 ---
 
 ## 3. Data Augmentation
