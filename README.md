@@ -1,6 +1,6 @@
 # Book Recommendation System
 
-[![Leaderboard Score](https://img.shields.io/badge/Leaderboard-0.1452%2B-green)](#performance-summary)
+[![Leaderboard Score](https://img.shields.io/badge/Leaderboard-0.1739-brightgreen)](#performance-summary)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
 > **Project Video Presentation:** [Link to your video here]
@@ -44,10 +44,12 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
 ---
 
 ## 3. Data Augmentation
-To improve recommendation quality, we enriched the original metadata using external sources:
-*   **Google Books API:** Fetched missing descriptions and categories.
-*   **ISBNDB:** (Optional) Supplemented publisher and language data.
-*   **Feature Engineering:** Combined original metadata with augmented text data for content-based signals.
+To improve recommendation quality, we enriched the original book metadata using three external sources:
+*   **Google Books API:** Queried by ISBN to fill missing Author fields. Using 4 API keys (4,000 requests), we filled **716 missing authors** — reducing the missing rate from 17.4% to 12.7%. Coverage was limited because the dataset is primarily French-language books.
+*   **Bibliothèque nationale de France (BnF) API:** Free API with no quota, specialised in French books. More effective than Google Books for this dataset.
+*   **Claude AI (Haiku model):** Classified all 15,291 books into 19 thematic categories (law, medicine, fiction, history, etc.) using prompt caching for efficiency. Results saved in `data/augmented/books_classified.csv`.
+
+**Outcome:** Despite thorough enrichment, 5-fold CV showed no measurable improvement in Precision@10 (Model 8 vs Model 7: 0.0556 vs 0.0560). The bottleneck is interaction sparsity, not metadata quality — see `models/Model_8_Augmented_Metadata.ipynb` for the full experiment.
 
 ---
 
@@ -66,52 +68,81 @@ To improve recommendation quality, we enriched the original metadata using exter
 | **Model 8: Model 7 + Augmented Metadata (Google Books API + BnF)** | 0.0556 | 0.2932 |
 
 ## Model Description
-### Baseline Models: User-Based & Item-Based Collaborative Filtering
-To establish a solid baseline for our recommendation engine, we implemented classic user-based & item-based Collaborative Filtering (CF) models. Before training these models, we designed a rigorous evaluation framework to simulate real-world recommendation scenarios accurately.
 
+### Models 1 & 2: User-User CF and Item-Item CF
+Classic collaborative filtering baselines. Model 1 recommends books liked by similar users; Model 2 recommends books similar to what the user has already read. Both use cosine similarity on binary interaction matrices.
 
-*   **User & Item Hybrid:** 
-*   **U + I + Content:**
-*   **Model 5: U + I + Content + Pop + Time decay:**
-integrates Collaborative Filtering (75%), Content-Based Filtering (20%), and Global Popularity (5%). The CF component balances User-to-User (45%) and Item-to-Item (55%) similarities. The content part utilizes a TF-IDF vectorizer where Author and Subjects are given a doubled weight (Author×2,Subjects×2) to emphasize creator loyalty and thematic relevance. A temporal decay function is used to prioritize recent interests, with all scoring components calculated on a linear, non-logarithmic scale.
-* **Model 6: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized):**
-integrates five components with weights optimized via Optuna: Temporal CF (45.5%), Count-based CF (16.6%), Content Filtering (18.0%), Graph RWR (14.5%), and Global Popularity (5.4%). The Temporal CF component balances User-to-User (63.1%) and Item-to-Item (36.9%) similarities with a 0.03 decay factor. The Count-based CF reflects frequency-weighted interactions (53.7% User, 46.3% Item). The content part utilizes a frequency-weighted TF-IDF vectorizer (Author×2, Subjects×2). A Random Walk with Restart captures structural graph relationships (α=0.7, 15 iterations), all scoring components are calculated using logarithmic (log1p) scaling to normalize frequency impacts.
-*   **XGBoost:**
+### Model 3: User & Item Hybrid
+A weighted blend of user-based (45%) and item-based (55%) CF, chosen through grid search. Outperforms either approach alone by combining both similarity signals.
 
+### Model 4: U + I + Content
+Adds TF-IDF content-based filtering to the hybrid CF. Each book is represented as a bag-of-words vector from Title, Author, Subjects, and Publisher. User profiles are built as the mean TF-IDF vector of their read books.
 
-### Hyper-parameter Optimization
-We used [Method, e.g., Optuna / GridSearch] to tune:
-*   K-neighbors for CF models.
-*   Learning rates and depth for Boosting models.
-*   Embedding dimensions for Matrix Factorization.
+### Model 5: U + I + Content + XGBoost
+A two-stage reranker: CF and content scores are used as features to train an XGBoost classifier (binary:logistic, 1:4 negative sampling, Optuna-tuned hyperparameters). Despite the added complexity, the model underperforms simpler hybrids due to limited training signal from sparse interactions.
 
-> **Note:** The above results are calculated using Cross-Validation on the training set to ensure label integrity.
+### Model 6: U + I + Content + Popularity + Time Decay
+Integrates three components: CF (75%), Content (20%), and Global Popularity (5%). Key improvements over Model 4:
+- **Rank-based time decay** (decay=0.03): the most recent borrowing gets weight 1.0; older books fade by factor 0.97 per step — based on borrowing order, not calendar time
+- **Author×2, Subjects×2** in TF-IDF to emphasize thematic relevance and creator loyalty
+- **Log-normalized popularity** as a gentle tiebreaker without popularity bias
+
+### Model 7: CF + Content + Popularity + Graph RWR (Best Model — Kaggle score: **0.1739**)
+Our best model adds **Graph Random Walk with Restart** to Model 6:
+- **CF** (time-decay weighted, sign-preserving log normalization): 45% user-based + 55% item-based
+- **Content** (count-weighted TF-IDF profiles, Author×2, Subjects×2): 20%
+- **Popularity** (log-normalized): 5%
+- **Graph RWR** (bipartite user-book graph, α=0.7, 15 iterations): 20%
+- Final blend: `0.8 × normalize(0.75×CF + 0.20×Content + 0.05×Pop) + 0.2×Graph`
+
+The graph component uncovers hidden connections between users and books that direct CF misses, by propagating signals across the full borrowing network.
+
+### Model 8: Model 7 + Augmented Metadata
+Model 7 retrained with enriched book metadata (Google Books API + BnF). No measurable improvement — see Section 3 and `models/Model_8_Augmented_Metadata.ipynb`.
+
+### Hyperparameter Optimization
+We used **Optuna** (200 trials, 5-fold average as objective) to search for optimal component weights. The Optuna-optimized submission scored 0.1725 on Kaggle, while the hand-tuned Model 7 scored **0.1739** — confirming that 5-fold CV alone does not perfectly proxy the Kaggle holdout.
+
+> All CV results use temporal 5-fold cross-validation: for each user, interactions are split chronologically into 5 folds, with the last 20% held out as the test set per fold.
 
 ---
 
 ## 5. Evaluation: The Best Model
-The **[Insert Best Model Name, e.g., XGBoost Hybrid]** outperformed others by integrating collaborative signals with item metadata. 
 
-### Good vs. Bad Predictions
-#### Good Predictions
-*   **User A History:** [List 1-2 genres/books]
-*   **Recommendation:** [Book X]
-*   **Why it works:** Align with the user's preference for [Genre].
+**Model 7** (CF + Content + Popularity + Graph RWR) is our best model, achieving **Precision@10 = 0.1739** on the Kaggle leaderboard — meaning on average 1.7 correct recommendations out of every 10 suggested, across 15,291 possible books.
 
-#### Bad Predictions
-*   **User B History:** [List 1-2 genres/books]
-*   **Recommendation:** [Book Y]
-*   **Why it failed:** Likely due to [Reason, e.g., Popularity bias or niche interest].
+### Where the model works well
+- **Active users** with 10+ interactions: CF finds reliable similar users and items
+- **Thematically consistent readers**: content-based TF-IDF reinforces genre preferences
+- **Books with rich metadata**: author and subject fields improve content similarity
+
+### Where the model struggles
+- **Cold-start users** (69% of users have fewer than 10 interactions): insufficient data for CF to find meaningful neighbors
+- **Long-tail books**: 52% of books have fewer than 5 interactions, making them nearly invisible to CF
+- **Multilingual/mixed collections**: TF-IDF treats French and English vocabulary independently
 
 ---
 
 ## 6. How to Run the Code
+
+### Reproduce model evaluation (Jupyter notebooks)
+All models are documented step-by-step in the `models/` folder. Open any notebook in Jupyter and run all cells.
+
 ```bash
-# Clone the repository
-git clone [https://github.com/your-username/your-repo.git](https://github.com/your-username/your-repo.git)
+pip install numpy pandas scikit-learn scipy matplotlib seaborn
+jupyter notebook models/Model_7_CF_Content_Pop_Graph_RWR.ipynb
+```
 
-# Install dependencies
-pip install -r requirements.txt
+### Run the recommendation website
+See `website/README_website.md` for full instructions. Quick start:
 
-# Run the training & evaluation script
-python main.py
+```bash
+# Terminal 1 — backend (from repo root)
+pip install fastapi uvicorn scikit-learn pandas numpy scipy
+.venv/bin/uvicorn website.backend.main:app --port 8001
+
+# Terminal 2 — frontend
+cd website/frontend && npm install && npm run dev
+```
+
+Open http://127.0.0.1:5180/
