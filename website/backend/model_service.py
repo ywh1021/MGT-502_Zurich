@@ -25,7 +25,7 @@ from .inference import (
 )
 
 HIDDEN_BOOK_TYPES = {"reference", "other"}
-PICKLE_VERSION = 1
+PICKLE_VERSION = 2  # bumped: added graph_scores + pop_scores (Model 7)
 
 
 @dataclass
@@ -88,6 +88,8 @@ def _save_cache(model: FittedModel, books: pd.DataFrame, book_map: dict) -> None
         "aligned_tfidf": model.aligned_tfidf,
         "user_similarity": model.user_similarity,
         "item_similarity": model.item_similarity,
+        "graph_scores": model.graph_scores,
+        "pop_scores": model.pop_scores,
         "books_records": books.to_dict("records"),
         "book_map": book_map,
     }
@@ -118,6 +120,8 @@ def _try_load_cache() -> tuple[FittedModel, pd.DataFrame, dict] | None:
         aligned_tfidf=payload["aligned_tfidf"],
         user_similarity=payload["user_similarity"],
         item_similarity=payload["item_similarity"],
+        graph_scores=payload["graph_scores"],
+        pop_scores=payload["pop_scores"],
     )
     books = pd.DataFrame(payload["books_records"])
     book_map = payload["book_map"]
