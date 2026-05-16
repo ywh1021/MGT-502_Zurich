@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pickle
-import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,9 +16,7 @@ INTERACTIONS_CSV = ROOT / "data" / "interactions_train.csv"
 ITEMS_CSV = ROOT / "data" / "items.csv"
 CLASSIFIED_CSV = ROOT / "data" / "augmented" / "books_classified.csv"
 
-# inference.py lives at repo root; make it importable.
-sys.path.insert(0, str(ROOT))
-from inference import (  # noqa: E402
+from inference import (
     FittedModel,
     build_interaction_matrix,
     fit,
