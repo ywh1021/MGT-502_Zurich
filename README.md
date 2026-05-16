@@ -103,7 +103,10 @@ Model 7 retrained with enriched book metadata (Google Books API + BnF). No measu
 ### Hyperparameter Optimization
 We used **Optuna** (200 trials, 5-fold average as objective) to search for optimal component weights. The Optuna-optimized submission scored 0.1725 on Kaggle, while the hand-tuned Model 7 scored **0.1739** — confirming that 5-fold CV alone does not perfectly proxy the Kaggle holdout.
 
-> All CV results use temporal 5-fold cross-validation: for each user, interactions are split chronologically into 5 folds, with the last 20% held out as the test set per fold.
+### Cross-Validation Strategy
+All CV results use temporal 5-fold cross-validation: for each user, interactions are split chronologically into 5 folds, with the last 20% held out as the test set per fold.
+
+An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** (which would be the most natural choice for time-series data, as it simulates predicting the future from the past). This suggests that the Kaggle test set is likely a **random holdout** across time rather than a strictly temporal one — making the 5-fold average a more reliable proxy for the true evaluation. Seasonal and recency-based models were tested and confirmed this hypothesis: they showed no improvement over the baseline.
 
 ---
 
