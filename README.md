@@ -6,7 +6,7 @@
 > **Project Video Presentation:** [Link to your video here]
 
 ## 1. Project Overview
-This project implements a hybrid recommendation engine for a library dataset. The goal is to achieve a Precision@10 score higher than **0.1452** on the competition leaderboard by leveraging collaborative filtering and advanced machine learning techniques.
+This project builds a hybrid book recommendation system for a library dataset (87,047 interactions across 7,838 users and 15,291 books). We developed eight key models of increasing complexity — from basic collaborative filtering to a hybrid combining CF, TF-IDF content filtering, popularity, and Graph Random Walk with Restart — achieving a final **Precision@10 of 0.1739** on the Kaggle leaderboard. In total, we ran over 25 experiments including Optuna hyperparameter search, seasonal weighting, session-based signals, and data augmentation; the eight models documented here represent the most significant milestones in that process. The system is deployed as an interactive web application where users can browse books by category and receive personalised recommendations.
 
 ---
 
