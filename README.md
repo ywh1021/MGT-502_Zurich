@@ -106,7 +106,7 @@ We used **Optuna** (200 trials, 5-fold average as objective) to search for optim
 ### Cross-Validation Strategy
 All CV results use temporal 5-fold cross-validation: for each user, interactions are split chronologically into 5 equal folds, with each fold taking a turn as the test set (20% of interactions) while the remaining 80% are used for training. The final score is the average across all 5 folds.
 
-An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** (which would be the most natural choice for time-series data, as it simulates predicting the future from the past). This suggests that the Kaggle test set is likely a **random holdout** across time rather than a strictly temporal one — making the 5-fold average a more reliable proxy for the true evaluation. Seasonal and recency-based models were tested and confirmed this hypothesis: they showed no improvement over the baseline.
+An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** (which would be the most natural choice for time-series data, as it simulates predicting the future from the past). This suggests that the Kaggle test set is likely a **random holdout** across time rather than a strictly temporal one — making the 5-fold average a more reliable proxy for the true evaluation. We validated this hypothesis by testing seasonal weighting (boosting autumn/winter interactions) and time-based popularity decay — neither improved the score, consistent with a random holdout.
 
 ---
 
