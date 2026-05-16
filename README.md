@@ -81,7 +81,7 @@ To improve recommendation quality, we enriched the original book metadata using 
 Classic collaborative filtering baselines. Model 1 recommends books liked by similar users; Model 2 recommends books similar to what the user has already read. Both use cosine similarity on binary interaction matrices.
 
 ### Model 3: User & Item Hybrid
-A weighted blend of user-based (45%) and item-based (55%) CF, chosen through grid search. Outperforms either approach alone by combining both similarity signals.
+A weighted blend of user-based (76%) and item-based (24%), chosen through grid search. Outperforms either approach alone by combining both similarity signals.
 
 ### Model 4: U + I + Content
 Adds TF-IDF content-based filtering to the hybrid CF. Each book is represented as a bag-of-words vector from Title, Author, Subjects, and Publisher. User profiles are built as the mean TF-IDF vector of their read books.
