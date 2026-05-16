@@ -13,8 +13,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE_PATH = Path(__file__).resolve().parent / "cache" / "model.pkl"
-INTERACTIONS_CSV = ROOT / "interactions_train.csv"
-ITEMS_CSV = ROOT / "items.csv"
+INTERACTIONS_CSV = ROOT / "data" / "interactions_train.csv"
+ITEMS_CSV = ROOT / "data" / "items.csv"
 CLASSIFIED_CSV = ROOT / "books_classified.csv"
 
 # inference.py lives at repo root; make it importable.
@@ -162,8 +162,23 @@ def load_or_fit() -> RecommenderState:
 # ─── Request-time helpers ───────────────────────────────────────────────────
 
 
+_LABEL_OVERRIDES: dict[str, str] = {
+    "arts_art_history": "Arts",
+    "non_fiction_general": "Non-Fiction",
+    "popular_science": "Popular Science",
+    "library_information_science": "Library & Info Science",
+    "communication_media_studies": "Media Studies",
+    "agriculture_food_sciences": "Agriculture & Food",
+    "engineering_technology": "Engineering & Tech",
+    "astronomy_space": "Astronomy & Space",
+    "medicine_health": "Medicine & Health",
+    "economics_management": "Economics & Management",
+    "anthropology_ethnology": "Anthropology & Ethnology",
+    "earth_sciences": "Earth Sciences",
+}
+
 def _label(value: str) -> str:
-    return value.replace("_", " ").title()
+    return _LABEL_OVERRIDES.get(value, value.replace("_", " ").title())
 
 
 def categories(state: RecommenderState) -> list[dict]:

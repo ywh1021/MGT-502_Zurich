@@ -3,5 +3,7 @@ frontend/dist/
 .DS_Store
 __pycache__
 backend/cache/
-data/
+data/*
 *.csv
+!data/items.csv
+!data/interactions_train.csv
