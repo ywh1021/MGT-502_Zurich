@@ -85,7 +85,7 @@ Classic collaborative filtering baselines. Model 1 recommends books liked by sim
 A weighted blend of user-based (76%) and item-based (24%), chosen through grid search. Outperforms either approach alone by combining both similarity signals.
 
 ### Model 4: U + I + Content
-Adds TF-IDF content-based filtering to the hybrid CF. Each book is represented as a bag-of-words vector from Title, Author, Subjects, and Publisher. User profiles are built as the mean TF-IDF vector of their read books.
+Integrates TF-IDF content-based filtering into the hybrid CF model. Book metadata (Title, Author, Subjects, Publisher) is vectorized to pre-compute a global Item-Item similarity matrix. These content-based predictions are then weighted and blended with user- and item-based collaborative signals.
 
 ### Model 5: U + I + Content + XGBoost
 A two-stage reranker: CF and content scores are used as features to train an XGBoost classifier (binary:logistic, 1:4 negative sampling, Optuna-tuned hyperparameters). Despite the added complexity, the model underperforms simpler hybrids due to limited training signal from sparse interactions.
