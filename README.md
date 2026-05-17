@@ -163,3 +163,38 @@ cd website/frontend && npm install && npm run dev
 ```
 
 Open http://127.0.0.1:5180/
+
+---
+
+## 7. Repository Structure
+
+```
+├── data/
+│   ├── items.csv                          # Original book metadata (15,291 books)
+│   ├── interactions_train.csv             # User-book interactions (87,047 rows)
+│   └── augmented/
+│       └── books_classified.csv          # Hierarchical book classification (used by website)
+│
+├── models/                                # Jupyter notebooks — one per model
+│   ├── EDA.ipynb
+│   ├── Model_1_2_User_User_Item_Item_CF.ipynb
+│   ├── Model_3_User_Item_Hybrid.ipynb
+│   ├── Model_4_U_I_Content.ipynb
+│   ├── Model_5_U_I_Content_XGBoost.ipynb
+│   ├── Model_6_U_I_Content_Pop_TimedDecay.ipynb
+│   ├── Model_7_CF_Content_Pop_Graph_RWR.ipynb
+│   ├── Model_9_Augmented_Metadata.ipynb
+│   └── ...
+│
+├── data_enrichment/                       # Scripts for enriching book metadata
+│   ├── classification_script.py          # Claude AI hierarchical book classifier
+│   ├── enrich_google.py                  # Google Books API — fill missing Authors
+│   └── enrich_bnf.py                     # BnF API — fill missing Authors (French books)
+│
+├── website/                               # Recommendation web application
+│   ├── backend/                          # FastAPI backend
+│   ├── frontend/                         # React + Vite frontend
+│   └── README_website.md                 # Instructions to run the website
+│
+└── images/                               # EDA charts used in README
+```
