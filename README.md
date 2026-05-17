@@ -72,8 +72,8 @@ To improve recommendation quality, we enriched the original book metadata using 
 | **Model 4: U + I + Content** | 0.0532 | 0.2741 |
 | **Model 5: U + I + Content + XGBoost** | 0.0511 | 0.2738 |
 | **Model 6: U + I + Content + Pop + Time decay** | **0.0555** | **0.2940** |
-| **Model 7: CF_Temp + CF_Count + Content + Pop + Graph RWR (Optuna Optimized)** | **0.0560** | **0.2950** |
-| **Model 8: Model 7 + Augmented Metadata (Google Books API + BnF)** | 0.0556 | 0.2932 |
+| **Model 7: CF + Content + Pop + Graph RWR (hand-tuned)** | **0.0560** | **0.2950** |
+| **Model 8: Model 7 + Augmented Metadata (Google Books API + BnF)** | 0.0556 | 0.2933 |
 
 ## Model Description
 
