@@ -122,7 +122,7 @@ Different methods were used at different stages:
 ### Cross-Validation Strategy
 All CV results use temporal 5-fold cross-validation: for each user, interactions are split chronologically into 5 equal folds, with each fold taking a turn as the test set (20% of interactions) while the remaining 80% are used for training. The final score is the average across all 5 folds.
 
-An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** — which would be the natural choice for time-series data. We investigated whether the Kaggle test set is a random or temporal holdout by testing period-specific popularity boosts and dedicated temporal validations. None produced consistent improvement, suggesting the holdout is likely **random across time** — though we cannot fully rule out a temporal holdout given the visible data drop-off from March 2024.
+An important finding: **averaging across all 5 folds produced better Kaggle predictions than using only the last fold** — which would be the natural choice for time-series data. We investigated whether the Kaggle test set is a random or temporal holdout by testing period-specific popularity boosts and by holding out specific time periods as a validation set. None produced consistent improvement, suggesting the holdout is likely **random across time** — though we cannot fully rule out a temporal holdout given the visible data drop-off from March 2024.
 
 ---
 
