@@ -57,7 +57,7 @@ To improve recommendation quality, we enriched the original book metadata using 
 *   **Bibliothèque nationale de France (BnF) API:** Free API with no quota, specialised in French books. More effective than Google Books for this dataset.
 *   **Claude AI (Haiku model):** Classified all 15,291 books using the Anthropic Message Batches API (`classification_script.py`). Each book is assigned a hierarchical classification: `book_type` (academic, fiction, comics, practical, etc.), `discipline` (for scholarly books: linguistics, sociology, history, etc.), and `topic` (for general books: travel, cooking, biography, etc.). Results saved in `data/augmented/books_classified.csv` and used by the recommendation website to enable category-based browsing.
 
-**Outcome:** Despite thorough enrichment, 5-fold CV showed no measurable improvement in Precision@10 (Model 8 vs Model 7: 0.0556 vs 0.0560). The bottleneck is interaction sparsity, not metadata quality — see `models/Model_8_Augmented_Metadata.ipynb` for the full experiment.
+**Outcome:** Despite thorough enrichment, 5-fold CV showed no measurable improvement in Precision@10 (Model 9 vs Model 7: 0.0556 vs 0.0560). The bottleneck is interaction sparsity, not metadata quality — see `models/Model_9_Augmented_Metadata.ipynb` for the full experiment.
 
 ---
 
@@ -73,8 +73,8 @@ To improve recommendation quality, we enriched the original book metadata using 
 | **Model 5: U + I + Content + XGBoost** | 0.0511 | 0.2738 |
 | **Model 6: U + I + Content + Pop + Time decay** | **0.0555** | **0.2940** |
 | **Model 7: CF + Content + Pop + Graph RWR (hand-tuned)** | **0.0560** | **0.2950** |
-| **Model 7 + Optuna weight optimization** | 0.0562 | 0.2951 |
-| **Model 8: Model 7 + Augmented Metadata (Google Books API + BnF)** | 0.0556 | 0.2933 |
+| **Model 8: Model 7 + Optuna weight optimization** | 0.0562 | 0.2951 |
+| **Model 9: Model 7 + Augmented Metadata (Google Books API + BnF)** | 0.0556 | 0.2933 |
 
 ## Model Description
 
@@ -106,8 +106,8 @@ Our best model adds **Graph Random Walk with Restart** to Model 6:
 
 The graph component uncovers hidden connections between users and books that direct CF misses, by propagating signals across the full borrowing network.
 
-### Model 8: Model 7 + Augmented Metadata
-Model 7 retrained with enriched book metadata (Google Books API + BnF). No measurable improvement — see Section 3 and `models/Model_8_Augmented_Metadata.ipynb`.
+### Model 9: Model 7 + Augmented Metadata
+Model 7 retrained with enriched book metadata (Google Books API + BnF). No measurable improvement — see Section 3 and `models/Model_9_Augmented_Metadata.ipynb`.
 
 ### Hyperparameter Optimization
 Different methods were used at different stages:
