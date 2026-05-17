@@ -55,7 +55,7 @@ While pure collaborative filtering (CF) models rely solely on user-item interact
 To improve recommendation quality, we enriched the original book metadata using three external sources:
 *   **Google Books API:** Queried by ISBN to fill missing Author fields. Using 4 API keys (4,000 requests), we filled **716 missing authors** — reducing the missing rate from 17.4% to 12.7%. Coverage was limited because the dataset is primarily French-language books.
 *   **Bibliothèque nationale de France (BnF) API:** Free API with no quota, specialised in French books. More effective than Google Books for this dataset.
-*   **Claude AI (Haiku model):** Classified all 15,291 books into 19 thematic categories (law, medicine, fiction, history, etc.) using prompt caching for efficiency. Results saved in `data/books_topics.csv`. Note: the website uses a separate, more detailed classification file (`data/augmented/books_classified.csv`) with book types and subcategories.
+*   **Claude AI (Haiku model):** Classified all 15,291 books using the Anthropic Message Batches API (`classification_script.py`). Each book is assigned a hierarchical classification: `book_type` (academic, fiction, comics, practical, etc.), `discipline` (for scholarly books: linguistics, sociology, history, etc.), and `topic` (for general books: travel, cooking, biography, etc.). Results saved in `data/augmented/books_classified.csv` and used by the recommendation website to enable category-based browsing.
 
 **Outcome:** Despite thorough enrichment, 5-fold CV showed no measurable improvement in Precision@10 (Model 8 vs Model 7: 0.0556 vs 0.0560). The bottleneck is interaction sparsity, not metadata quality — see `models/Model_8_Augmented_Metadata.ipynb` for the full experiment.
 
