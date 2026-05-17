@@ -3,6 +3,7 @@
 [![Leaderboard Score](https://img.shields.io/badge/Leaderboard-0.1739-brightgreen)](#performance-summary)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
+> **Github Link:** https://github.com/ywh1021/MGT-502_Zurich/tree/main
 > **Project Video Presentation:** https://www.youtube.com/watch?v=awYwOtI_TZY
 
 ## 1. Project Overview
