@@ -114,7 +114,7 @@ Different methods were used at different stages:
 - **Model 3**: grid search over α ∈ [0, 1] (step 0.02) to find the optimal user/item CF blend — 76% user-based, 24% item-based.
 - **Model 4**: grid search over α ∈ [0, 1] (step 0.1) to find the optimal user/item/content blend - 20% user-based, 10% Item based, 70% Content based
 - **Model 5**: Optuna Bayesian optimization over 15 trials on a single 80/20 validation set (with 1:4 negative sampling) to find the optimal XGBoost parameters — n_estimators: 71, max_depth: 3, learning_rate: 0.185, and subsample: 0.798.
-- **Model 6**: component weights (CF 75%, Content 20%, Popularity 5%) were chosen manually as an empirically reasonable starting point.
+- **Model 6**: component weights (CF 75%, Content 20%, Popularity 5%) were found through iterative manual search — sweeping weights, identifying the peak, then narrowing the range and repeating.
 - **Model 7**: component weights (CF 75%, Content 20%, Popularity 5%, Graph 20%) were found through manual experimentation and validated on 5-fold CV.
 - **Model 8: Optuna** (200 trials, 5-fold average as objective): automated search over all component weights simultaneously. The Optuna-optimized submission scored 0.1725 on Kaggle, while the hand-tuned Model 7 scored **0.1739** — confirming that 5-fold CV alone does not perfectly proxy the Kaggle holdout.
 
