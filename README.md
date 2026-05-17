@@ -187,7 +187,9 @@ Open http://127.0.0.1:5180/
 │   ├── Model_6_U_I_Content_Pop_TimedDecay.ipynb
 │   ├── Model_7_CF_Content_Pop_Graph_RWR.ipynb
 │   ├── Model_9_Augmented_Metadata.ipynb
-│   └── ...
+│   └── experiments/                      # Iterative experiments (TF-IDF variations, weight search)
+│       ├── Experiments_TF_IDF_Variations.ipynb
+│       └── Experiments_Weight_Search.ipynb
 │
 ├── data_enrichment/                       # Scripts for enriching book metadata
 │   ├── classification_script.py          # Claude AI hierarchical book classifier
