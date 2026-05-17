@@ -112,8 +112,8 @@ Model 7 retrained with enriched book metadata (Google Books API + BnF). No measu
 ### Hyperparameter Optimization
 Different methods were used at different stages:
 - **Model 3**: grid search over α ∈ [0, 1] (step 0.02) to find the optimal user/item CF blend — 76% user-based, 24% item-based.
-- **Model 4**:
-- **Model 5:**
+- **Model 4**: grid search over α ∈ [0, 1] (step 0.1) to find the optimal user/item/content blend - 20% user-based, 10% Item based, 70% Content based
+- **Model 5**:
 - **Model 7**: component weights (CF 75%, Content 20%, Popularity 5%, Graph 20%) were found through manual experimentation and validated on 5-fold CV.
 - **Model 8: Optuna** (200 trials, 5-fold average as objective): automated search over all component weights simultaneously. The Optuna-optimized submission scored 0.1725 on Kaggle, while the hand-tuned Model 7 scored **0.1739** — confirming that 5-fold CV alone does not perfectly proxy the Kaggle holdout.
 
