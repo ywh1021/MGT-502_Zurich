@@ -147,7 +147,7 @@ All models are documented step-by-step in the `models/` folder. Open any noteboo
 
 ```bash
 pip install numpy pandas scikit-learn scipy matplotlib seaborn
-jupyter notebook models/Model_7_CF_Content_Pop_Graph_RWR.ipynb
+jupyter notebook models/
 ```
 
 ### Run the recommendation website
